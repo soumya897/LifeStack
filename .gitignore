@@ -1,0 +1,27 @@
+# LifeStack Root .gitignore
+
+# Environment files
+.env
+.env.local
+*.env
+
+# IDE and OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Backend Build artifacts
+lifestack-backend/target/
+lifestack-backend/.mvn/wrapper/maven-wrapper.jar
+lifestack-backend/*.log
+
+# Frontend Build artifacts
+lifestack-frontend/node_modules/
+lifestack-frontend/dist/
+lifestack-frontend/.pnp
+lifestack-frontend/.pnp.js
+lifestack-frontend/*.log
+lifestack-frontend/.vite/
+

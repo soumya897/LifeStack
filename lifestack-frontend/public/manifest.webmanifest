@@ -1,0 +1,18 @@
+{
+  "name": "LifeStack — Personal Productivity Platform",
+  "short_name": "LifeStack",
+  "description": "Organize learning roadmaps, coding practice, notes, and job tracker in one place.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
+
