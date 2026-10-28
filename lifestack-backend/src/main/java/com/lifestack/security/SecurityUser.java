@@ -65,3 +65,4 @@ public class SecurityUser implements UserDetails {
         return true;
     }
 }
+

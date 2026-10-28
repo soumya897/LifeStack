@@ -60,3 +60,4 @@ public class WorkspaceService {
         workspaceRepository.delete(workspace);
     }
 }
+

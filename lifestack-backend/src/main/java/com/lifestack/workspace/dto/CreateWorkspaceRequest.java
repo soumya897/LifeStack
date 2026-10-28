@@ -35,3 +35,4 @@ public class CreateWorkspaceRequest {
         this.description = description;
     }
 }
+

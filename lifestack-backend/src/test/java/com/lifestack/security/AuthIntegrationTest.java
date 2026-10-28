@@ -144,3 +144,4 @@ class AuthIntegrationTest {
                 .andExpect(jsonPath("$.success").value(false));
     }
 }
+

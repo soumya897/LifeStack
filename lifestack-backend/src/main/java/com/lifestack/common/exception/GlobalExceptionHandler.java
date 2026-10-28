@@ -65,3 +65,4 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error("An unexpected server error occurred. Please try again later."));
     }
 }
+

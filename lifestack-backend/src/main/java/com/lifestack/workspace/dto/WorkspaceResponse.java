@@ -85,3 +85,4 @@ public class WorkspaceResponse {
         this.updatedAt = updatedAt;
     }
 }
+

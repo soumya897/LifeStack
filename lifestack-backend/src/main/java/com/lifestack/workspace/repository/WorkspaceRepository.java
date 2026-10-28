@@ -20,3 +20,4 @@ public interface WorkspaceRepository extends JpaRepository<Workspace, UUID> {
 
     boolean existsByIdAndOwnerId(UUID id, UUID ownerId);
 }
+

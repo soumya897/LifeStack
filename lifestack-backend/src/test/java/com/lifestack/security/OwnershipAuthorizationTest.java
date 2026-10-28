@@ -90,3 +90,4 @@ class OwnershipAuthorizationTest {
                 .andExpect(jsonPath("$.data.name").value("Alice Private Workspace"));
     }
 }
+
