@@ -5,6 +5,23 @@ export interface ApiResponse<T> {
   timestamp: string;
 }
 
+export interface User {
+  id: string;
+  email: string;
+  displayName: string;
+  timezone: string;
+  createdAt: string;
+}
+
+export interface Workspace {
+  id: string;
+  name: string;
+  description: string;
+  settings: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface HealthCheckData {
   status: string;
   version: string;
@@ -18,6 +35,18 @@ export interface HealthCheckData {
       error?: string;
     };
   };
+}
+
+export interface RegisterPayload {
+  email: string;
+  password: string;
+  displayName: string;
+  timezone?: string;
+}
+
+export interface LoginPayload {
+  email: string;
+  password: string;
 }
 
 export class ApiError extends Error {
@@ -67,5 +96,32 @@ export const api = {
   health: {
     check: () => apiClient<HealthCheckData>('/health'),
   },
+  auth: {
+    register: (payload: RegisterPayload) =>
+      apiClient<User>('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+    login: (payload: LoginPayload) =>
+      apiClient<User>('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+    logout: () =>
+      apiClient<void>('/auth/logout', {
+        method: 'POST',
+      }),
+  },
+  users: {
+    me: () => apiClient<User>('/users/me'),
+  },
+  workspaces: {
+    list: () => apiClient<Workspace[]>('/workspaces'),
+    get: (id: string) => apiClient<Workspace>(`/workspaces/${id}`),
+    create: (payload: { name: string; description?: string }) =>
+      apiClient<Workspace>('/workspaces', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+  },
 };
-

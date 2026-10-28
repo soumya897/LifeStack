@@ -1,6 +1,9 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { DashboardPage } from '@/features/dashboard/DashboardPage';
+import { LoginPage } from '@/features/auth/LoginPage';
+import { RegisterPage } from '@/features/auth/RegisterPage';
+import { ProtectedRoute } from '@/features/auth/ProtectedRoute';
 
 function FeaturePlaceholder({ title, description }: { title: string; description: string }) {
   return (
@@ -19,80 +22,93 @@ function FeaturePlaceholder({ title, description }: { title: string; description
 
 export const router = createBrowserRouter([
   {
-    path: '/',
-    element: <AppLayout />,
+    path: '/login',
+    element: <LoginPage />,
+  },
+  {
+    path: '/register',
+    element: <RegisterPage />,
+  },
+  {
+    element: <ProtectedRoute />,
     children: [
       {
-        index: true,
-        element: <DashboardPage />,
-      },
-      {
-        path: 'today',
-        element: (
-          <FeaturePlaceholder
-            title="Today Screen"
-            description="View tasks due today, overdue items, and scheduled learning targets."
-          />
-        ),
-      },
-      {
-        path: 'learning',
-        element: (
-          <FeaturePlaceholder
-            title="Learning & Roadmaps"
-            description="Manage learning roadmaps such as DSA and Core Java, ordered topics, and progress calculations."
-          />
-        ),
-      },
-      {
-        path: 'coding',
-        element: (
-          <FeaturePlaceholder
-            title="Coding Practice"
-            description="Record problems, code solutions, difficulty ratings, time/space complexity, and attempt histories."
-          />
-        ),
-      },
-      {
-        path: 'notes',
-        element: (
-          <FeaturePlaceholder
-            title="Notes & Resources"
-            description="Maintain standalone and attached knowledge notes with tags and markdown support."
-          />
-        ),
-      },
-      {
-        path: 'jobs',
-        element: (
-          <FeaturePlaceholder
-            title="Job Tracker"
-            description="Track applications, interview rounds, outcomes, and customizable career fields."
-          />
-        ),
-      },
-      {
-        path: 'analytics',
-        element: (
-          <FeaturePlaceholder
-            title="Analytics"
-            description="Review monthly submission trends, interview funnel statistics, and learning velocity."
-          />
-        ),
-      },
-      {
-        path: 'settings',
-        element: (
-          <FeaturePlaceholder
-            title="Settings & Customization"
-            description="Configure timezone, custom template versions, appearance, and workspace options."
-          />
-        ),
-      },
-      {
-        path: '*',
-        element: <Navigate to="/" replace />,
+        path: '/',
+        element: <AppLayout />,
+        children: [
+          {
+            index: true,
+            element: <DashboardPage />,
+          },
+          {
+            path: 'today',
+            element: (
+              <FeaturePlaceholder
+                title="Today Screen"
+                description="View tasks due today, overdue items, and scheduled learning targets."
+              />
+            ),
+          },
+          {
+            path: 'learning',
+            element: (
+              <FeaturePlaceholder
+                title="Learning & Roadmaps"
+                description="Manage learning roadmaps such as DSA and Core Java, ordered topics, and progress calculations."
+              />
+            ),
+          },
+          {
+            path: 'coding',
+            element: (
+              <FeaturePlaceholder
+                title="Coding Practice"
+                description="Record problems, code solutions, difficulty ratings, time/space complexity, and attempt histories."
+              />
+            ),
+          },
+          {
+            path: 'notes',
+            element: (
+              <FeaturePlaceholder
+                title="Notes & Resources"
+                description="Maintain standalone and attached knowledge notes with tags and markdown support."
+              />
+            ),
+          },
+          {
+            path: 'jobs',
+            element: (
+              <FeaturePlaceholder
+                title="Job Tracker"
+                description="Track applications, interview rounds, outcomes, and customizable career fields."
+              />
+            ),
+          },
+          {
+            path: 'analytics',
+            element: (
+              <FeaturePlaceholder
+                title="Analytics"
+                description="Review monthly submission trends, interview funnel statistics, and learning velocity."
+              />
+            ),
+          },
+          {
+            path: 'settings',
+            element: (
+              <FeaturePlaceholder
+                title="Settings & Customization"
+                description="Configure timezone, custom template versions, appearance, and workspace options."
+              />
+            ),
+          },
+        ],
       },
     ],
+  },
+  {
+    path: '*',
+    element: <Navigate to="/" replace />,
   },
 ]);
