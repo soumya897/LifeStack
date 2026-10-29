@@ -22,7 +22,7 @@ public interface NoteRepository extends JpaRepository<Note, UUID> {
     Optional<Note> findByIdAndOwnerId(@Param("id") UUID id, @Param("ownerId") UUID ownerId);
 
     @Query("SELECT n FROM Note n WHERE n.workspace.id = :workspaceId AND n.owner.id = :ownerId AND " +
-           "(:search IS NULL OR LOWER(n.title) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "(LOWER(n.title) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "LOWER(n.content) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "LOWER(n.tags) LIKE LOWER(CONCAT('%', :search, '%'))) ORDER BY n.updatedAt DESC")
     List<Note> searchNotes(@Param("workspaceId") UUID workspaceId,

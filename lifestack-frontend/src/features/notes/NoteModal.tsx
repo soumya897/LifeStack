@@ -1,12 +1,12 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { X, Loader2, FileText, Tag } from 'lucide-react';
+import { X, Loader2, FileText, Tag, AlertCircle } from 'lucide-react';
 import { Note } from '../../lib/api';
 
 const noteSchema = z.object({
-  title: z.string().min(1, 'Title is required').max(255, 'Title must be under 255 characters'),
+  title: z.string().min(1, 'Title is required').max(200, 'Title must be under 200 characters'),
   content: z.string().optional(),
   tags: z.string().max(255, 'Tags string must be under 255 characters').optional(),
 });
@@ -29,6 +29,7 @@ export function NoteModal({
   initialData,
 }: NoteModalProps) {
   const isEditing = !!initialData;
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
     register,
@@ -46,6 +47,7 @@ export function NoteModal({
 
   useEffect(() => {
     if (isOpen) {
+      setSubmitError(null);
       if (initialData) {
         reset({
           title: initialData.title || '',
@@ -61,6 +63,15 @@ export function NoteModal({
       }
     }
   }, [isOpen, initialData, reset]);
+
+  const handleFormSubmit = async (values: NoteFormValues) => {
+    try {
+      setSubmitError(null);
+      await onSubmit(values);
+    } catch (err: any) {
+      setSubmitError(err?.message || 'Failed to save note. Please try again.');
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -91,8 +102,14 @@ export function NoteModal({
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden">
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col flex-1 overflow-hidden">
           <div className="p-6 space-y-4 overflow-y-auto flex-1">
+            {submitError && (
+              <div className="flex items-center gap-2 p-3 text-xs text-rose-700 bg-rose-50 border border-rose-200 rounded-xl">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{submitError}</span>
+              </div>
+            )}
             {/* Title */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">

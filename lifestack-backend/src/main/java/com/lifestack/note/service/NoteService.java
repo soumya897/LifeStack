@@ -47,8 +47,14 @@ public class NoteService {
         workspaceRepository.findByIdAndOwnerId(workspaceId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Workspace not found: " + workspaceId));
 
-        return noteRepository.searchNotes(workspaceId, userId, search != null && !search.isBlank() ? search.trim() : null)
-                .stream()
+        List<Note> notes;
+        if (search != null && !search.isBlank()) {
+            notes = noteRepository.searchNotes(workspaceId, userId, search.trim());
+        } else {
+            notes = noteRepository.findByWorkspaceIdAndOwnerId(workspaceId, userId);
+        }
+
+        return notes.stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }

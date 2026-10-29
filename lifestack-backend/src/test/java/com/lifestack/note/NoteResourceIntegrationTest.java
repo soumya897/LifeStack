@@ -109,7 +109,22 @@ class NoteResourceIntegrationTest {
         UUID noteId = UUID.fromString(
                 objectMapper.readTree(noteResult.getResponse().getContentAsString()).get("data").get("id").asText());
 
-        // 3. Search Note by tag/keyword
+        // 3. Search Note by tag/keyword and list without search param
+        mockMvc.perform(get("/api/v1/notes")
+                        .param("workspaceId", workspaceId.toString())
+                        .session(session))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data", hasSize(1)))
+                .andExpect(jsonPath("$.data[0].id").value(noteId.toString()));
+
+        mockMvc.perform(get("/api/v1/notes")
+                        .param("workspaceId", workspaceId.toString())
+                        .param("search", "   ")
+                        .session(session))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data", hasSize(1)))
+                .andExpect(jsonPath("$.data[0].id").value(noteId.toString()));
+
         mockMvc.perform(get("/api/v1/notes")
                         .param("workspaceId", workspaceId.toString())
                         .param("search", "tuning")

@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
+  AlertCircle,
   FileText,
   Plus,
   Search,
@@ -36,7 +37,12 @@ export function NotesPage() {
   const [copiedNoteId, setCopiedNoteId] = useState<string | null>(null);
 
   // Fetch Notes
-  const { data: notes = [], isLoading: isLoadingNotes } = useQuery<Note[]>({
+  const {
+    data: notes = [],
+    isLoading: isLoadingNotes,
+    error: notesError,
+    refetch: refetchNotes,
+  } = useQuery<Note[]>({
     queryKey: ['notes', currentWorkspace?.id, search],
     queryFn: async () => {
       if (!currentWorkspace?.id) return [];
@@ -270,7 +276,23 @@ export function NotesPage() {
           </div>
 
           {/* Notes Grid */}
-          {isLoadingNotes ? (
+          {notesError ? (
+            <div className="rounded-2xl border border-rose-200 bg-rose-50/70 p-8 text-center max-w-md mx-auto space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 mx-auto flex items-center justify-center">
+                <AlertCircle className="w-5 h-5" />
+              </div>
+              <h3 className="text-sm font-bold text-rose-900">Failed to load notes</h3>
+              <p className="text-xs text-rose-600 leading-relaxed">
+                {(notesError as Error)?.message || 'An unexpected error occurred while fetching notes.'}
+              </p>
+              <button
+                onClick={() => refetchNotes()}
+                className="inline-flex items-center px-4 py-2 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition-all shadow-sm"
+              >
+                Retry
+              </button>
+            </div>
+          ) : isLoadingNotes ? (
             <div className="py-16 text-center">
               <Loader2 className="w-8 h-8 animate-spin text-indigo-600 mx-auto" />
               <p className="text-xs text-slate-500 mt-2">Loading notes...</p>
