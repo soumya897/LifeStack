@@ -64,3 +64,4 @@ public class CreateTopicRequest {
         this.targetDate = targetDate;
     }
 }
+

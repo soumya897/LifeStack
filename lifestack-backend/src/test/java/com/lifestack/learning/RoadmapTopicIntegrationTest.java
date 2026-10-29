@@ -250,3 +250,4 @@ class RoadmapTopicIntegrationTest {
                 .andExpect(status().isNotFound());
     }
 }
+

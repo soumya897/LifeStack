@@ -92,3 +92,4 @@ CREATE TABLE IF NOT EXISTS problem_solutions (
 );
 
 CREATE INDEX IF NOT EXISTS idx_problem_solutions_problem_id ON problem_solutions(problem_id);
+

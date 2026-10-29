@@ -25,3 +25,4 @@ public class ReorderTopicsRequest {
         this.topicIds = topicIds;
     }
 }
+

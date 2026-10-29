@@ -23,3 +23,4 @@ public class UpdateTopicStatusRequest {
         this.status = status;
     }
 }
+

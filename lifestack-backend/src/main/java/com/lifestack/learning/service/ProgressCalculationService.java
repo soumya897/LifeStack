@@ -145,3 +145,4 @@ public class ProgressCalculationService {
         return Math.round(clamped * 10.0) / 10.0;
     }
 }
+

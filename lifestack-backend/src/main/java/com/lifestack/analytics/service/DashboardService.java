@@ -24,7 +24,7 @@ public class DashboardService {
     private final RoadmapRepository roadmapRepository;
 
     public DashboardService(WorkspaceRepository workspaceRepository,
-                            RoadmapRepository roadmapRepository) {
+            RoadmapRepository roadmapRepository) {
         this.workspaceRepository = workspaceRepository;
         this.roadmapRepository = roadmapRepository;
     }
@@ -52,8 +52,10 @@ public class DashboardService {
         response.setWorkspaceName(activeWorkspace.getName());
 
         // Real counts for Learning roadmaps in active workspace
-        long activeRoadmaps = roadmapRepository.countByWorkspaceIdAndStatus(activeWorkspace.getId(), RoadmapStatus.ACTIVE);
-        long completedRoadmaps = roadmapRepository.countByWorkspaceIdAndStatus(activeWorkspace.getId(), RoadmapStatus.COMPLETED);
+        long activeRoadmaps = roadmapRepository.countByWorkspaceIdAndStatus(activeWorkspace.getId(),
+                RoadmapStatus.ACTIVE);
+        long completedRoadmaps = roadmapRepository.countByWorkspaceIdAndStatus(activeWorkspace.getId(),
+                RoadmapStatus.COMPLETED);
 
         response.setActiveRoadmapsCount((int) activeRoadmaps);
         response.setCompletedRoadmapsCount((int) completedRoadmaps);
@@ -78,8 +80,7 @@ public class DashboardService {
                     "ROADMAP_ACTIVE",
                     "Roadmap In Progress",
                     "Active learning in '" + r.getName() + "'.",
-                    r.getUpdatedAt() != null ? r.getUpdatedAt() : r.getCreatedAt()
-            ));
+                    r.getUpdatedAt() != null ? r.getUpdatedAt() : r.getCreatedAt()));
         }
 
         if (activities.isEmpty()) {
@@ -87,9 +88,9 @@ public class DashboardService {
                     UUID.randomUUID().toString(),
                     "WORKSPACE_READY",
                     "Workspace Ready",
-                    "Your '" + activeWorkspace.getName() + "' workspace is active and ready for your first learning roadmap.",
-                    activeWorkspace.getCreatedAt()
-            ));
+                    "Your '" + activeWorkspace.getName()
+                            + "' workspace is active and ready for your first learning roadmap.",
+                    activeWorkspace.getCreatedAt()));
         }
 
         response.setRecentActivity(activities);

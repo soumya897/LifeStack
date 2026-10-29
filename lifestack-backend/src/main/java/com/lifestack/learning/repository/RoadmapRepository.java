@@ -28,3 +28,4 @@ public interface RoadmapRepository extends JpaRepository<Roadmap, UUID> {
 
     List<Roadmap> findTop5ByWorkspaceIdAndStatusOrderByUpdatedAtDesc(UUID workspaceId, RoadmapStatus status);
 }
+

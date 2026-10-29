@@ -180,3 +180,4 @@ public class Topic {
         this.updatedAt = updatedAt;
     }
 }
+

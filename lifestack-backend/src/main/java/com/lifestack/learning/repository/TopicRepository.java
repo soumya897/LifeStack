@@ -24,3 +24,4 @@ public interface TopicRepository extends JpaRepository<Topic, UUID> {
     @Query("SELECT COALESCE(MAX(t.sortOrder), -1) FROM Topic t WHERE t.roadmap.id = :roadmapId")
     int findMaxSortOrderByRoadmapId(@Param("roadmapId") UUID roadmapId);
 }
+
