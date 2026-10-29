@@ -9,6 +9,8 @@ import { RoadmapDetailPage } from '@/features/learning/RoadmapDetailPage';
 import { CodingPracticePage } from '@/features/coding/CodingPracticePage';
 import { ProblemDetailPage } from '@/features/coding/ProblemDetailPage';
 import { NotesPage } from '@/features/notes/NotesPage';
+import { JobTrackerPage } from '@/features/jobs/JobTrackerPage';
+import { ApplicationDetailPage } from '@/features/jobs/ApplicationDetailPage';
 
 function FeaturePlaceholder({ title, description }: { title: string; description: string }) {
   return (
@@ -76,12 +78,11 @@ export const router = createBrowserRouter([
           },
           {
             path: 'jobs',
-            element: (
-              <FeaturePlaceholder
-                title="Job Tracker"
-                description="Track applications, interview rounds, outcomes, and customizable career fields."
-              />
-            ),
+            element: <JobTrackerPage />,
+          },
+          {
+            path: 'jobs/:applicationId',
+            element: <ApplicationDetailPage />,
           },
           {
             path: 'analytics',

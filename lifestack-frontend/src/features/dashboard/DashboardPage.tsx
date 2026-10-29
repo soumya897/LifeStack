@@ -352,19 +352,31 @@ export function DashboardPage() {
             <div className="mt-4 space-y-2 text-xs">
               <div className="flex items-center gap-2 text-emerald-700 font-medium">
                 <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
-                <span>M1: Project Foundation & Flyway</span>
+                <span>M1: Architecture & Flyway</span>
               </div>
               <div className="flex items-center gap-2 text-emerald-700 font-medium">
                 <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
-                <span>M2: Authentication & Tenant Isolation</span>
+                <span>M2: Auth & Workspace Tenancy</span>
               </div>
               <div className="flex items-center gap-2 text-emerald-700 font-medium">
                 <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
-                <span>M3: Workspaces & Dashboard Aggregator</span>
+                <span>M3: Workspaces & Dashboard</span>
+              </div>
+              <div className="flex items-center gap-2 text-emerald-700 font-medium">
+                <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                <span>M4: Roadmaps & Progress Engine</span>
+              </div>
+              <div className="flex items-center gap-2 text-emerald-700 font-medium">
+                <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                <span>M5: Notes, Resources & Coding Tracker</span>
+              </div>
+              <div className="flex items-center gap-2 text-emerald-700 font-medium">
+                <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                <span>M6: Job Tracker & Interview Pipeline</span>
               </div>
               <div className="flex items-center gap-2 text-slate-400 font-medium">
                 <div className="h-4 w-4 rounded-full border-2 border-slate-300 shrink-0" />
-                <span>M4: Roadmaps, Topics & Progress Engine</span>
+                <span>M7: Dynamic Templates & Custom Fields</span>
               </div>
             </div>
           </div>

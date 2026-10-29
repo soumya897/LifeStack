@@ -206,6 +206,152 @@ export interface CreateResourcePayload {
   topicId?: string;
 }
 
+export type ApplicationStatus =
+  | 'SAVED'
+  | 'APPLIED'
+  | 'SCREENING'
+  | 'ASSESSMENT'
+  | 'INTERVIEW'
+  | 'OFFER'
+  | 'HIRED'
+  | 'REJECTED'
+  | 'WITHDRAWN'
+  | 'ON_HOLD';
+
+export type WorkMode = 'REMOTE' | 'HYBRID' | 'ONSITE';
+
+export type InterviewEventType =
+  | 'RECRUITER_SCREEN'
+  | 'TECHNICAL'
+  | 'SYSTEM_DESIGN'
+  | 'BEHAVIORAL'
+  | 'MANAGERIAL'
+  | 'FINAL_ROUND'
+  | 'OTHER';
+
+export type InterviewStatus = 'SCHEDULED' | 'COMPLETED' | 'CANCELLED' | 'RESCHEDULED';
+
+export type InterviewResult = 'PENDING' | 'PASSED' | 'FAILED';
+
+export interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+  first: boolean;
+  last: boolean;
+  empty: boolean;
+}
+
+export interface JobApplication {
+  id: string;
+  workspaceId: string;
+  companyName: string;
+  jobTitle: string;
+  source?: string;
+  jobUrl?: string;
+  appliedAt?: string;
+  status: ApplicationStatus;
+  location?: string;
+  workMode?: WorkMode;
+  salary?: string;
+  notes?: string;
+  followUpAt?: string;
+  interviewRoundsCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface InterviewEvent {
+  id: string;
+  applicationId: string;
+  companyName?: string;
+  roundName: string;
+  eventType: InterviewEventType;
+  scheduledAt?: string;
+  occurredAt?: string;
+  status: InterviewStatus;
+  result: InterviewResult;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ApplicationHistory {
+  id: string;
+  fromStatus?: ApplicationStatus;
+  toStatus: ApplicationStatus;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface ApplicationDetail extends JobApplication {
+  interviews: InterviewEvent[];
+  history: ApplicationHistory[];
+  attachedNoteIds: string[];
+}
+
+export interface JobStatsSummary {
+  totalApplications: number;
+  appliedThisMonth: number;
+  activeInterviews: number;
+  offersCount: number;
+  rejectionsCount: number;
+  followUpsDue: number;
+  byStatus: Record<string, number>;
+  bySource: Record<string, number>;
+}
+
+export interface CreateApplicationPayload {
+  workspaceId: string;
+  companyName: string;
+  jobTitle: string;
+  source?: string;
+  jobUrl?: string;
+  appliedAt?: string;
+  status?: ApplicationStatus;
+  location?: string;
+  workMode?: WorkMode;
+  salary?: string;
+  notes?: string;
+  followUpAt?: string;
+}
+
+export interface UpdateApplicationPayload {
+  companyName?: string;
+  jobTitle?: string;
+  source?: string;
+  jobUrl?: string;
+  appliedAt?: string;
+  status?: ApplicationStatus;
+  location?: string;
+  workMode?: WorkMode;
+  salary?: string;
+  notes?: string;
+  followUpAt?: string;
+}
+
+export interface CreateInterviewPayload {
+  roundName: string;
+  eventType?: InterviewEventType;
+  scheduledAt?: string;
+  occurredAt?: string;
+  status?: InterviewStatus;
+  result?: InterviewResult;
+  notes?: string;
+}
+
+export interface UpdateInterviewPayload {
+  roundName?: string;
+  eventType?: InterviewEventType;
+  scheduledAt?: string;
+  occurredAt?: string;
+  status?: InterviewStatus;
+  result?: InterviewResult;
+  notes?: string;
+}
+
 export interface HealthCheckData {
   status: string;
   version: string;
@@ -537,5 +683,72 @@ export const api = {
       const query = workspaceId ? `?workspaceId=${encodeURIComponent(workspaceId)}` : '';
       return apiClient<DashboardSummary>(`/analytics/dashboard${query}`);
     },
+  },
+  applications: {
+    list: (
+      workspaceId: string,
+      options?: {
+        status?: ApplicationStatus;
+        source?: string;
+        search?: string;
+        page?: number;
+        size?: number;
+      }
+    ) => {
+      const params = new URLSearchParams({ workspaceId });
+      if (options?.status) params.append('status', options.status);
+      if (options?.source) params.append('source', options.source);
+      if (options?.search) params.append('search', options.search);
+      if (options?.page !== undefined) params.append('page', options.page.toString());
+      if (options?.size !== undefined) params.append('size', options.size.toString());
+      return apiClient<PageResponse<JobApplication>>(`/applications?${params.toString()}`);
+    },
+    get: (id: string) => apiClient<ApplicationDetail>(`/applications/${id}`),
+    create: (payload: CreateApplicationPayload) =>
+      apiClient<JobApplication>('/applications', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+    update: (id: string, payload: UpdateApplicationPayload) =>
+      apiClient<JobApplication>(`/applications/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(payload),
+      }),
+    delete: (id: string) =>
+      apiClient<void>(`/applications/${id}`, {
+        method: 'DELETE',
+      }),
+    linkNote: (appId: string, noteId: string) =>
+      apiClient<void>(`/applications/${appId}/notes/${noteId}`, {
+        method: 'POST',
+      }),
+    unlinkNote: (appId: string, noteId: string) =>
+      apiClient<void>(`/applications/${appId}/notes/${noteId}`, {
+        method: 'DELETE',
+      }),
+  },
+  interviews: {
+    list: (applicationId: string) =>
+      apiClient<InterviewEvent[]>(`/applications/${applicationId}/interviews`),
+    create: (applicationId: string, payload: CreateInterviewPayload) =>
+      apiClient<InterviewEvent>(`/applications/${applicationId}/interviews`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+    update: (id: string, payload: UpdateInterviewPayload) =>
+      apiClient<InterviewEvent>(`/interviews/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(payload),
+      }),
+    delete: (id: string) =>
+      apiClient<void>(`/interviews/${id}`, {
+        method: 'DELETE',
+      }),
+  },
+  jobAnalytics: {
+    summary: (workspaceId: string) =>
+      apiClient<JobStatsSummary>(
+        `/analytics/jobs/summary?workspaceId=${encodeURIComponent(workspaceId)}`
+      ),
   },
 };
