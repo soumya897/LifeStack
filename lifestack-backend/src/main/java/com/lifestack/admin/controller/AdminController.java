@@ -54,8 +54,10 @@ public class AdminController {
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String direction
     ) {
+        int clampedPage = Math.max(0, page);
+        int clampedSize = Math.max(1, Math.min(size, 100));
         Sort sort = direction.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
-        Pageable pageable = PageRequest.of(page, size, sort);
+        Pageable pageable = PageRequest.of(clampedPage, clampedSize, sort);
         PageResponse<AdminUserItem> users = adminService.getUsers(search, status, role, pageable);
         return ResponseEntity.ok(ApiResponse.success("User directory retrieved successfully", users));
     }

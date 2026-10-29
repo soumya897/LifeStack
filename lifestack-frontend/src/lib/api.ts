@@ -496,7 +496,6 @@ export interface RegisterPayload {
   password: string;
   displayName: string;
   timezone?: string;
-  role?: UserRole;
 }
 
 export interface LoginPayload {

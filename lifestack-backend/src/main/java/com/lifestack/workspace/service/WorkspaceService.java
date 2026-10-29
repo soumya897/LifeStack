@@ -1,5 +1,6 @@
 package com.lifestack.workspace.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lifestack.common.exception.ResourceNotFoundException;
 import com.lifestack.user.entity.User;
 import com.lifestack.user.repository.UserRepository;
@@ -23,10 +24,14 @@ public class WorkspaceService {
 
     private final WorkspaceRepository workspaceRepository;
     private final UserRepository userRepository;
+    private final ObjectMapper objectMapper;
 
-    public WorkspaceService(WorkspaceRepository workspaceRepository, UserRepository userRepository) {
+    public WorkspaceService(WorkspaceRepository workspaceRepository,
+                            UserRepository userRepository,
+                            ObjectMapper objectMapper) {
         this.workspaceRepository = workspaceRepository;
         this.userRepository = userRepository;
+        this.objectMapper = objectMapper;
     }
 
     @Transactional(readOnly = true)
@@ -66,7 +71,15 @@ public class WorkspaceService {
             workspace.setDescription(request.getDescription().trim());
         }
         if (request.getSettings() != null) {
-            workspace.setSettings(request.getSettings());
+            String trimmedSettings = request.getSettings().trim();
+            if (!trimmedSettings.isEmpty()) {
+                try {
+                    objectMapper.readTree(trimmedSettings);
+                } catch (Exception e) {
+                    throw new IllegalArgumentException("Invalid JSON syntax for workspace settings");
+                }
+            }
+            workspace.setSettings(trimmedSettings.isEmpty() ? "{}" : trimmedSettings);
         }
 
         Workspace updated = workspaceRepository.save(workspace);

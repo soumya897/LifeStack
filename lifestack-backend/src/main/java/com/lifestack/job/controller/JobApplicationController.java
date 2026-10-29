@@ -43,8 +43,10 @@ public class JobApplicationController {
             @RequestParam(defaultValue = "appliedAt") String sortBy,
             @RequestParam(defaultValue = "desc") String direction) {
 
+        int clampedPage = Math.max(0, page);
+        int clampedSize = Math.max(1, Math.min(size, 100));
         Sort sort = direction.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
-        Pageable pageable = PageRequest.of(page, size, sort);
+        Pageable pageable = PageRequest.of(clampedPage, clampedSize, sort);
 
         Page<ApplicationResponse> applications = applicationService.getApplications(
                 user.getId(), workspaceId, status, source, search, pageable);
