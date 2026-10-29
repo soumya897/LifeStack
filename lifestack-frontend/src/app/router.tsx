@@ -11,6 +11,7 @@ import { ProblemDetailPage } from '@/features/coding/ProblemDetailPage';
 import { NotesPage } from '@/features/notes/NotesPage';
 import { JobTrackerPage } from '@/features/jobs/JobTrackerPage';
 import { ApplicationDetailPage } from '@/features/jobs/ApplicationDetailPage';
+import { AnalyticsPage } from '@/features/analytics/AnalyticsPage';
 import { SettingsPage } from '@/features/settings/SettingsPage';
 
 function FeaturePlaceholder({ title, description }: { title: string; description: string }) {
@@ -87,12 +88,7 @@ export const router = createBrowserRouter([
           },
           {
             path: 'analytics',
-            element: (
-              <FeaturePlaceholder
-                title="Analytics & Reports"
-                description="Review monthly job application conversion rates and learning velocity."
-              />
-            ),
+            element: <AnalyticsPage />,
           },
           {
             path: 'settings',

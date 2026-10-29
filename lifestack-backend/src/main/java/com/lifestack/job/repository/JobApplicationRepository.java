@@ -44,6 +44,10 @@ public interface JobApplicationRepository extends JpaRepository<JobApplication, 
     long countByWorkspaceIdAndFollowUpAtLessThanEqualAndStatusNotIn(
             UUID workspaceId, LocalDate date, Collection<ApplicationStatus> terminalStatuses);
 
+    List<JobApplication> findByWorkspaceId(UUID workspaceId);
+
+    List<JobApplication> findByWorkspaceIdOrderByAppliedAtAsc(UUID workspaceId);
+
     @Query("SELECT a.source, COUNT(a) FROM JobApplication a WHERE a.workspace.id = :workspaceId GROUP BY a.source")
     List<Object[]> countBySourceGroupBySource(@Param("workspaceId") UUID workspaceId);
 

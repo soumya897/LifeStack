@@ -292,15 +292,84 @@ export interface ApplicationDetail extends JobApplication {
   attachedNoteIds: string[];
 }
 
+export interface JobFunnelStage {
+  stage: string;
+  count: number;
+  conversionRate: number;
+}
+
 export interface JobStatsSummary {
   totalApplications: number;
   appliedThisMonth: number;
   activeInterviews: number;
   offersCount: number;
+  hiredCount?: number;
   rejectionsCount: number;
   followUpsDue: number;
+  offerRatePercentage?: number;
   byStatus: Record<string, number>;
   bySource: Record<string, number>;
+  stageFunnel?: JobFunnelStage[];
+}
+
+export interface RoadmapProgressAnalyticsItem {
+  id: string;
+  name: string;
+  status: string;
+  progressPercentage: number;
+  totalTopics: number;
+  completedTopics: number;
+  targetDate?: string;
+  overdue: boolean;
+}
+
+export interface RoadmapAnalytics {
+  totalRoadmaps: number;
+  activeRoadmaps: number;
+  completedRoadmaps: number;
+  totalTopics: number;
+  completedTopics: number;
+  topicCompletionRate: number;
+  totalProblems: number;
+  solvedProblems: number;
+  problemSolveRate: number;
+  problemsByDifficulty: Record<string, number>;
+  problemsByStatus: Record<string, number>;
+  totalNotes: number;
+  roadmaps: RoadmapProgressAnalyticsItem[];
+}
+
+export interface MonthlyVelocityItem {
+  monthKey: string;
+  label: string;
+  applicationsCount: number;
+  interviewsCount: number;
+}
+
+export interface JobMonthlyVelocity {
+  months: MonthlyVelocityItem[];
+}
+
+export interface SourcePerformanceItem {
+  source: string;
+  totalApplications: number;
+  interviewCount: number;
+  offerCount: number;
+  interviewRate: number;
+  offerRate: number;
+}
+
+export interface JobSourceAnalytics {
+  sources: SourcePerformanceItem[];
+}
+
+export interface InterviewAnalytics {
+  totalInterviews: number;
+  upcomingInterviews: number;
+  completedInterviews: number;
+  byRoundType: Record<string, number>;
+  byStatus: Record<string, number>;
+  byResult: Record<string, number>;
 }
 
 export interface CreateApplicationPayload {
@@ -682,6 +751,26 @@ export const api = {
     dashboard: (workspaceId?: string) => {
       const query = workspaceId ? `?workspaceId=${encodeURIComponent(workspaceId)}` : '';
       return apiClient<DashboardSummary>(`/analytics/dashboard${query}`);
+    },
+    roadmaps: (workspaceId?: string) => {
+      const query = workspaceId ? `?workspaceId=${encodeURIComponent(workspaceId)}` : '';
+      return apiClient<RoadmapAnalytics>(`/analytics/roadmaps${query}`);
+    },
+    jobSummary: (workspaceId?: string) => {
+      const query = workspaceId ? `?workspaceId=${encodeURIComponent(workspaceId)}` : '';
+      return apiClient<JobStatsSummary>(`/analytics/jobs/summary${query}`);
+    },
+    jobMonthly: (workspaceId?: string) => {
+      const query = workspaceId ? `?workspaceId=${encodeURIComponent(workspaceId)}` : '';
+      return apiClient<JobMonthlyVelocity>(`/analytics/jobs/monthly${query}`);
+    },
+    jobBySource: (workspaceId?: string) => {
+      const query = workspaceId ? `?workspaceId=${encodeURIComponent(workspaceId)}` : '';
+      return apiClient<JobSourceAnalytics>(`/analytics/jobs/by-source${query}`);
+    },
+    jobInterviews: (workspaceId?: string) => {
+      const query = workspaceId ? `?workspaceId=${encodeURIComponent(workspaceId)}` : '';
+      return apiClient<InterviewAnalytics>(`/analytics/jobs/interviews${query}`);
     },
   },
   applications: {

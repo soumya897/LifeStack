@@ -16,6 +16,8 @@ public interface NoteRepository extends JpaRepository<Note, UUID> {
     @Query("SELECT n FROM Note n WHERE n.workspace.id = :workspaceId AND n.owner.id = :ownerId ORDER BY n.updatedAt DESC")
     List<Note> findByWorkspaceIdAndOwnerId(@Param("workspaceId") UUID workspaceId, @Param("ownerId") UUID ownerId);
 
+    long countByWorkspaceIdAndOwnerId(UUID workspaceId, UUID ownerId);
+
     @Query("SELECT n FROM Note n WHERE n.id = :id AND n.owner.id = :ownerId")
     Optional<Note> findByIdAndOwnerId(@Param("id") UUID id, @Param("ownerId") UUID ownerId);
 

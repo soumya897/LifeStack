@@ -23,6 +23,10 @@ public interface InterviewEventRepository extends JpaRepository<InterviewEvent, 
     long countByApplicationWorkspaceIdAndScheduledAtGreaterThanEqualAndStatus(
             UUID workspaceId, Instant from, InterviewStatus status);
 
+    List<InterviewEvent> findByApplicationWorkspaceId(UUID workspaceId);
+
+    long countByApplicationWorkspaceId(UUID workspaceId);
+
     @Query("SELECT i.eventType, COUNT(i) FROM InterviewEvent i WHERE i.application.workspace.id = :workspaceId GROUP BY i.eventType")
     List<Object[]> countByEventTypeGroup(@Param("workspaceId") UUID workspaceId);
 

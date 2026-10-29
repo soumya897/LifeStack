@@ -1,6 +1,7 @@
 package com.lifestack.learning.repository;
 
 import com.lifestack.learning.entity.Topic;
+import com.lifestack.learning.entity.TopicStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,5 +24,14 @@ public interface TopicRepository extends JpaRepository<Topic, UUID> {
 
     @Query("SELECT COALESCE(MAX(t.sortOrder), -1) FROM Topic t WHERE t.roadmap.id = :roadmapId")
     int findMaxSortOrderByRoadmapId(@Param("roadmapId") UUID roadmapId);
+
+    @Query("SELECT COUNT(t) FROM Topic t WHERE t.roadmap.workspace.id = :workspaceId")
+    long countByWorkspaceId(@Param("workspaceId") UUID workspaceId);
+
+    @Query("SELECT COUNT(t) FROM Topic t WHERE t.roadmap.workspace.id = :workspaceId AND t.status = :status")
+    long countByWorkspaceIdAndStatus(@Param("workspaceId") UUID workspaceId, @Param("status") TopicStatus status);
+
+    @Query("SELECT t FROM Topic t WHERE t.roadmap.workspace.id = :workspaceId")
+    List<Topic> findByWorkspaceId(@Param("workspaceId") UUID workspaceId);
 }
 
