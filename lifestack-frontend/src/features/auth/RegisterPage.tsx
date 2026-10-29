@@ -7,6 +7,7 @@ import { useAuth } from './AuthContext';
 import { AlertCircle, ArrowRight, Lock, Mail, User, Globe } from 'lucide-react';
 import { LifeStackLogo } from '@/components/LifeStackLogo';
 import { LifeStackLoader } from '@/components/LifeStackLoader';
+import { isCloudConnectingError } from '@/lib/api';
 
 const registerSchema = z
   .object({
@@ -41,6 +42,7 @@ export function RegisterPage() {
   const { register: registerUser } = useAuth();
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isWakingUp, setIsWakingUp] = useState<boolean>(false);
 
   const detectedTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
 
@@ -62,6 +64,7 @@ export function RegisterPage() {
   const onSubmit = async (data: RegisterFormData) => {
     try {
       setErrorMessage(null);
+      setIsWakingUp(false);
       await registerUser({
         email: data.email,
         password: data.password,
@@ -70,7 +73,10 @@ export function RegisterPage() {
       });
       navigate('/', { replace: true });
     } catch (err: unknown) {
-      if (err instanceof Error) {
+      if (isCloudConnectingError(err)) {
+        setIsWakingUp(true);
+        setErrorMessage(null);
+      } else if (err instanceof Error) {
         setErrorMessage(err.message);
       } else {
         setErrorMessage('Failed to create account. Please try again.');
@@ -94,13 +100,39 @@ export function RegisterPage() {
           </p>
         </div>
 
-        {/* Global Error Banner */}
-        {errorMessage && (
-          <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-            <AlertCircle className="h-4 w-4 shrink-0 text-red-500" />
-            <span>{errorMessage}</span>
+        {/* Cloud Wake-Up & Connection Card */}
+        {isWakingUp ? (
+          <div className="rounded-2xl border border-brand-200 bg-brand-50/40 p-6 text-center space-y-4 animate-in fade-in duration-300">
+            <div className="flex justify-center">
+              <LifeStackLoader size="lg" />
+            </div>
+
+            <div>
+              <h3 className="text-base font-bold text-slate-900">
+                Connecting to Cloud Services...
+              </h3>
+              <p className="mt-1.5 text-xs text-slate-600 leading-relaxed">
+                Our secure cloud services are waking up and connecting. 
+                Please hold on a moment while we set up your session.
+              </p>
+            </div>
+
+            <button
+              onClick={() => setIsWakingUp(false)}
+              className="text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors py-1"
+            >
+              Back to registration
+            </button>
           </div>
-        )}
+        ) : (
+          <>
+            {/* Global Error Banner */}
+            {errorMessage && (
+              <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                <AlertCircle className="h-4 w-4 shrink-0 text-red-500" />
+                <span>{errorMessage}</span>
+              </div>
+            )}
 
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -241,6 +273,8 @@ export function RegisterPage() {
             )}
           </button>
         </form>
+        </>
+        )}
 
         {/* Footer Link */}
         <div className="text-center text-xs text-slate-500">

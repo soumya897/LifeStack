@@ -564,6 +564,37 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * Checks whether an error is caused by backend or database service cold-starting, sleeping, or initializing.
+ */
+export function isCloudConnectingError(error: unknown): boolean {
+  if (!error) return false;
+  if (error instanceof ApiError) {
+    if (error.status === 0 || [500, 502, 503, 504].includes(error.status)) return true;
+    const msg = (error.message || '').toLowerCase();
+    return (
+      msg.includes('connecting') ||
+      msg.includes('initializing') ||
+      msg.includes('service') ||
+      msg.includes('timeout') ||
+      msg.includes('network') ||
+      msg.includes('failed to fetch') ||
+      msg.includes('cloud')
+    );
+  }
+  if (error instanceof Error) {
+    const msg = error.message.toLowerCase();
+    return (
+      msg.includes('failed to fetch') ||
+      msg.includes('network') ||
+      msg.includes('timeout') ||
+      msg.includes('refused') ||
+      msg.includes('offline')
+    );
+  }
+  return false;
+}
+
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
 
 export async function apiClient<T>(
@@ -577,14 +608,24 @@ export async function apiClient<T>(
     Accept: 'application/json',
   };
 
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      ...defaultHeaders,
-      ...options.headers,
-    },
-    credentials: 'same-origin',
-  });
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      ...options,
+      headers: {
+        ...defaultHeaders,
+        ...options.headers,
+      },
+      credentials: 'same-origin',
+    });
+  } catch (err: unknown) {
+    // Network error / container asleep / cold start
+    throw new ApiError(
+      0,
+      'Secure cloud services are waking up and connecting. Please hold on a moment...',
+      err
+    );
+  }
 
   const body: ApiResponse<T> = await response.json().catch(() => ({
     success: false,
@@ -594,7 +635,23 @@ export async function apiClient<T>(
   }));
 
   if (!response.ok || !body.success) {
-    throw new ApiError(response.status, body.message || 'API error occurred', body.data);
+    let cleanMessage = body.message || 'API error occurred';
+    const lower = cleanMessage.toLowerCase();
+    // Sanitize any raw database or infrastructure leakage
+    if (
+      lower.includes('supabase') ||
+      lower.includes('hikari') ||
+      lower.includes('postgres') ||
+      lower.includes('psqlexception') ||
+      lower.includes('connection refused') ||
+      lower.includes('connection is not available') ||
+      lower.includes('connection timed out') ||
+      lower.includes('driver') ||
+      [502, 503, 504].includes(response.status)
+    ) {
+      cleanMessage = 'Secure cloud services are waking up and connecting. Please hold on a moment...';
+    }
+    throw new ApiError(response.status, cleanMessage, body.data);
   }
 
   return body;
