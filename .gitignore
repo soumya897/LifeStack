@@ -20,6 +20,7 @@ lifestack-backend/*.log
 # Frontend Build artifacts
 lifestack-frontend/node_modules/
 lifestack-frontend/dist/
+lifestack-frontend/dev-dist/
 lifestack-frontend/.pnp
 lifestack-frontend/.pnp.js
 lifestack-frontend/*.log

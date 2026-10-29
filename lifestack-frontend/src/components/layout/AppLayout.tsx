@@ -28,7 +28,7 @@ import { api } from '@/lib/api';
 import { useAuth } from '@/features/auth/AuthContext';
 import { useWorkspace } from '@/features/workspace/WorkspaceContext';
 import { WorkspaceModal } from '@/features/workspace/WorkspaceModal';
-import { PwaInstallPrompt, PwaInstallHeaderButton } from '@/components/pwa/PwaInstallPrompt';
+import { PwaInstallPrompt, PwaInstallHeaderButton, PwaInstallSidebarItem } from '@/components/pwa/PwaInstallPrompt';
 
 const navigationItems = [
   { name: 'Dashboard', to: '/', icon: LayoutDashboard },
@@ -168,6 +168,7 @@ export function AppLayout() {
               </NavLink>
             );
           })}
+          <PwaInstallSidebarItem />
         </nav>
 
         {/* Sidebar Footer — System Status & User Profile */}
