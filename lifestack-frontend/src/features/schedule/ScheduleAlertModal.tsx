@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { BellRing, Check, Clock, X, Volume2 } from 'lucide-react';
 import { api, ScheduleItem } from '@/lib/api';
+import { stopNotificationSound } from '@/lib/audioNotifier';
 
 interface ScheduleAlertModalProps {
   alert: ScheduleItem | null;
@@ -10,13 +11,18 @@ interface ScheduleAlertModalProps {
 export function ScheduleAlertModal({ alert, onClose }: ScheduleAlertModalProps) {
   const queryClient = useQueryClient();
 
+  const handleClose = () => {
+    stopNotificationSound();
+    onClose();
+  };
+
   const updateStatusMutation = useMutation({
     mutationFn: ({ id, status }: { id: string; status: 'COMPLETED' | 'DISMISSED' }) =>
       api.schedules.updateStatus(id, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['schedules'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-summary'] });
-      onClose();
+      handleClose();
     },
   });
 
@@ -28,7 +34,7 @@ export function ScheduleAlertModal({ alert, onClose }: ScheduleAlertModalProps) 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['schedules'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-summary'] });
-      onClose();
+      handleClose();
     },
   });
 
@@ -64,7 +70,7 @@ export function ScheduleAlertModal({ alert, onClose }: ScheduleAlertModalProps) 
             </div>
           </div>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="text-white/80 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/10"
           >
             <X className="h-5 w-5" />
@@ -119,7 +125,7 @@ export function ScheduleAlertModal({ alert, onClose }: ScheduleAlertModalProps) 
               <span>Snooze (10m)</span>
             </button>
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="inline-flex items-center justify-center px-3.5 py-2.5 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors"
             >
               Dismiss
@@ -130,3 +136,4 @@ export function ScheduleAlertModal({ alert, onClose }: ScheduleAlertModalProps) 
     </div>
   );
 }
+
