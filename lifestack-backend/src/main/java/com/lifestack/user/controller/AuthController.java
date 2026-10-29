@@ -19,6 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,15 +36,18 @@ public class AuthController {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
     private final SecurityContextRepository securityContextRepository;
+    private final SessionRegistry sessionRegistry;
     private final SecurityContextHolderStrategy securityContextHolderStrategy =
             SecurityContextHolder.getContextHolderStrategy();
 
     public AuthController(UserService userService,
                           AuthenticationManager authenticationManager,
-                          SecurityContextRepository securityContextRepository) {
+                          SecurityContextRepository securityContextRepository,
+                          SessionRegistry sessionRegistry) {
         this.userService = userService;
         this.authenticationManager = authenticationManager;
         this.securityContextRepository = securityContextRepository;
+        this.sessionRegistry = sessionRegistry;
     }
 
     @PostMapping("/register")
@@ -83,6 +87,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if (session != null) {
+            sessionRegistry.removeSessionInformation(session.getId());
             session.invalidate();
         }
         SecurityContextHolder.clearContext();
@@ -96,6 +101,8 @@ public class AuthController {
         context.setAuthentication(authentication);
         securityContextHolderStrategy.setContext(context);
         securityContextRepository.saveContext(context, request, response);
+
+        HttpSession session = request.getSession(true);
+        sessionRegistry.registerNewSession(session.getId(), authentication.getPrincipal());
     }
 }
-

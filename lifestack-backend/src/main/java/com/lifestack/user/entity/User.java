@@ -41,6 +41,17 @@ public class User {
     @Column(nullable = false)
     private String timezone = "UTC";
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private Role role = Role.USER;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private UserStatus status = UserStatus.ACTIVE;
+
+    @Column(name = "last_active_at")
+    private Instant lastActiveAt;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
@@ -57,6 +68,17 @@ public class User {
         this.passwordHash = passwordHash;
         this.displayName = displayName;
         this.timezone = timezone != null ? timezone : "UTC";
+        this.role = Role.USER;
+        this.status = UserStatus.ACTIVE;
+    }
+
+    public User(String email, String passwordHash, String displayName, String timezone, Role role) {
+        this.email = email;
+        this.passwordHash = passwordHash;
+        this.displayName = displayName;
+        this.timezone = timezone != null ? timezone : "UTC";
+        this.role = role != null ? role : Role.USER;
+        this.status = UserStatus.ACTIVE;
     }
 
     public UUID getId() {
@@ -99,6 +121,30 @@ public class User {
         this.timezone = timezone;
     }
 
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public UserStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(UserStatus status) {
+        this.status = status;
+    }
+
+    public Instant getLastActiveAt() {
+        return lastActiveAt;
+    }
+
+    public void setLastActiveAt(Instant lastActiveAt) {
+        this.lastActiveAt = lastActiveAt;
+    }
+
     public Instant getCreatedAt() {
         return createdAt;
     }
@@ -115,4 +161,3 @@ public class User {
         this.updatedAt = updatedAt;
     }
 }
-

@@ -5,6 +5,7 @@ import com.lifestack.common.exception.UserAlreadyExistsException;
 import com.lifestack.user.dto.RegisterRequest;
 import com.lifestack.user.dto.UpdateUserRequest;
 import com.lifestack.user.dto.UserResponse;
+import com.lifestack.user.entity.Role;
 import com.lifestack.user.entity.User;
 import com.lifestack.user.repository.UserRepository;
 import com.lifestack.workspace.entity.Workspace;
@@ -41,12 +42,16 @@ public class UserService {
             throw new UserAlreadyExistsException("An account with email " + normalizedEmail + " already exists");
         }
 
+        // Public self-registration ALWAYS creates a standard USER account.
+        // Administrative accounts can only be provisioned by existing authenticated administrators.
+        Role accountRole = Role.USER;
         String hashedPassword = passwordEncoder.encode(request.getPassword());
         User user = new User(
                 normalizedEmail,
                 hashedPassword,
                 request.getDisplayName().trim(),
-                request.getTimezone() != null ? request.getTimezone().trim() : "UTC"
+                request.getTimezone() != null ? request.getTimezone().trim() : "UTC",
+                accountRole
         );
 
         User savedUser = userRepository.save(user);
@@ -88,5 +93,10 @@ public class UserService {
         User updatedUser = userRepository.save(user);
         return UserResponse.fromEntity(updatedUser);
     }
-}
 
+    @Transactional
+    public void deleteUser(UUID userId) {
+        User user = getUserEntityById(userId);
+        userRepository.delete(user);
+    }
+}

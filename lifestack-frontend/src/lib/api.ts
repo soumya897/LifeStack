@@ -5,11 +5,17 @@ export interface ApiResponse<T> {
   timestamp: string;
 }
 
+export type UserRole = 'USER' | 'ADMIN';
+export type UserStatus = 'ACTIVE' | 'BLOCKED';
+
 export interface User {
   id: string;
   email: string;
   displayName: string;
   timezone: string;
+  role?: UserRole;
+  status?: UserStatus;
+  lastActiveAt?: string | null;
   createdAt: string;
 }
 
@@ -490,6 +496,7 @@ export interface RegisterPayload {
   password: string;
   displayName: string;
   timezone?: string;
+  role?: UserRole;
 }
 
 export interface LoginPayload {
@@ -657,6 +664,109 @@ export async function apiClient<T>(
   return body;
 }
 
+export interface DailyDauPoint {
+  date: string;
+  activeUsers: number;
+}
+
+export interface DauMetrics {
+  todayDau: number;
+  sevenDayAverageDau: number;
+  thirtyDayAverageDau: number;
+  history: DailyDauPoint[];
+}
+
+export interface AdminMetricsResponse {
+  activeSessions: number;
+  activeUsersCount: number;
+  totalUsers: number;
+  activeUsers: number;
+  blockedUsers: number;
+  dauMetrics: DauMetrics;
+}
+
+export interface DatabaseHealth {
+  status: string;
+  latencyMs: number;
+  product: string;
+  version: string;
+  activeConnections: number;
+  idleConnections: number;
+  maxConnections: number;
+}
+
+export interface FlywayHealth {
+  status: string;
+  currentVersion: string;
+  lastMigration: string;
+  installedOn: string;
+  totalMigrations: number;
+}
+
+export interface JvmHealth {
+  usedMemoryMb: number;
+  totalMemoryMb: number;
+  maxMemoryMb: number;
+  memoryUtilizationPercent: number;
+  activeThreads: number;
+  availableProcessors: number;
+}
+
+export interface ServerHealth {
+  status: string;
+  uptimeMillis: number;
+  uptimeFormatted: string;
+  startTime: string;
+  javaVersion: string;
+  springBootVersion: string;
+}
+
+export interface CloudSecurityHealth {
+  environment: string;
+  isolationMode: string;
+  tokenSecurity: string;
+  publicSignupPolicy: string;
+  adminProvisioningPolicy: string;
+  auditLogs: string[];
+}
+
+export interface AdminSystemHealthResponse {
+  database: DatabaseHealth;
+  flyway: FlywayHealth;
+  security?: CloudSecurityHealth;
+  jvm?: JvmHealth;
+  server: ServerHealth;
+}
+
+export interface AdminUserItem {
+  id: string;
+  displayName: string;
+  email: string;
+  role: UserRole;
+  status: UserStatus;
+  timezone: string;
+  createdAt: string;
+  lastActiveAt?: string | null;
+  workspacesCount: number;
+}
+
+export interface AdminUserQueryOptions {
+  page?: number;
+  size?: number;
+  search?: string;
+  status?: string;
+  role?: string;
+  sortBy?: string;
+  direction?: string;
+}
+
+export interface CreateAdminPayload {
+  email: string;
+  password: string;
+  displayName: string;
+  timezone?: string;
+}
+
 export const api = {
   health: {
     check: () => apiClient<HealthCheckData>('/health'),
@@ -679,6 +789,10 @@ export const api = {
   },
   users: {
     me: () => apiClient<User>('/users/me'),
+    deleteMe: () =>
+      apiClient<void>('/users/me', {
+        method: 'DELETE',
+      }),
   },
   workspaces: {
     list: () => apiClient<Workspace[]>('/workspaces'),
@@ -977,5 +1091,37 @@ export const api = {
       apiClient<JobStatsSummary>(
         `/analytics/jobs/summary?workspaceId=${encodeURIComponent(workspaceId)}`
       ),
+  },
+  admin: {
+    getMetrics: () => apiClient<AdminMetricsResponse>('/admin/metrics'),
+    getSystemHealth: () => apiClient<AdminSystemHealthResponse>('/admin/system-health'),
+    getUsers: (options?: AdminUserQueryOptions) => {
+      const params = new URLSearchParams();
+      if (options?.page !== undefined) params.append('page', options.page.toString());
+      if (options?.size !== undefined) params.append('size', options.size.toString());
+      if (options?.search) params.append('search', options.search);
+      if (options?.status) params.append('status', options.status);
+      if (options?.role) params.append('role', options.role);
+      if (options?.sortBy) params.append('sortBy', options.sortBy);
+      if (options?.direction) params.append('direction', options.direction);
+      return apiClient<PageResponse<AdminUserItem>>(`/admin/users?${params.toString()}`);
+    },
+    createAdmin: (payload: CreateAdminPayload) =>
+      apiClient<AdminUserItem>('/admin/users/create-admin', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+    blockUser: (userId: string) =>
+      apiClient<AdminUserItem>(`/admin/users/${userId}/block`, {
+        method: 'POST',
+      }),
+    unblockUser: (userId: string) =>
+      apiClient<AdminUserItem>(`/admin/users/${userId}/unblock`, {
+        method: 'POST',
+      }),
+    deleteUser: (userId: string) =>
+      apiClient<void>(`/admin/users/${userId}`, {
+        method: 'DELETE',
+      }),
   },
 };

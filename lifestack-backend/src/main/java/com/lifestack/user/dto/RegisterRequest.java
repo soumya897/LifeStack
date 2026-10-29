@@ -64,4 +64,3 @@ public class RegisterRequest {
         this.timezone = timezone;
     }
 }
-
