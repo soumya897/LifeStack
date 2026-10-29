@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -17,10 +17,17 @@ import {
   AlertCircle,
   LogOut,
   User as UserIcon,
+  ChevronDown,
+  Plus,
+  Check,
+  Edit2,
+  Trash2,
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { useAuth } from '@/features/auth/AuthContext';
+import { useWorkspace } from '@/features/workspace/WorkspaceContext';
+import { WorkspaceModal } from '@/features/workspace/WorkspaceModal';
 
 const navigationItems = [
   { name: 'Dashboard', to: '/', icon: LayoutDashboard },
@@ -35,8 +42,16 @@ const navigationItems = [
 
 export function AppLayout() {
   const { user, logout } = useAuth();
+  const { workspaces, currentWorkspace, setCurrentWorkspace, createWorkspace, updateWorkspace, deleteWorkspace } =
+    useWorkspace();
   const navigate = useNavigate();
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [workspaceMenuOpen, setWorkspaceMenuOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+
+  const workspaceDropdownRef = useRef<HTMLDivElement>(null);
 
   const { data: healthData, isLoading: healthLoading } = useQuery({
     queryKey: ['system-health'],
@@ -44,9 +59,49 @@ export function AppLayout() {
     refetchInterval: 30000,
   });
 
+  // Close workspace dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (workspaceDropdownRef.current && !workspaceDropdownRef.current.contains(event.target as Node)) {
+        setWorkspaceMenuOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const handleLogout = async () => {
     await logout();
     navigate('/login', { replace: true });
+  };
+
+  const handleOpenCreateWorkspace = () => {
+    setEditMode(false);
+    setWorkspaceMenuOpen(false);
+    setModalOpen(true);
+  };
+
+  const handleOpenEditWorkspace = () => {
+    setEditMode(true);
+    setWorkspaceMenuOpen(false);
+    setModalOpen(true);
+  };
+
+  const handleDeleteWorkspace = async (id: string, name: string) => {
+    if (workspaces.length <= 1) {
+      alert('Cannot delete your only workspace.');
+      return;
+    }
+    if (confirm(`Are you sure you want to delete workspace "${name}"? This action cannot be undone.`)) {
+      try {
+        await deleteWorkspace(id);
+        setWorkspaceMenuOpen(false);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          alert(err.message);
+        }
+      }
+    }
   };
 
   const isHealthy = healthData?.data?.status === 'UP';
@@ -56,21 +111,21 @@ export function AppLayout() {
       {/* Mobile Sidebar Overlay */}
       {mobileMenuOpen && (
         <div
-          className="fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-xs lg:hidden"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-slate-200 bg-white shadow-sm transition-transform duration-200 ease-in-out lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-slate-200 bg-white shadow-xs transition-transform duration-200 ease-in-out lg:static lg:translate-x-0 ${
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {/* Brand Header */}
         <div className="flex h-16 items-center justify-between border-b border-slate-100 px-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white shadow-sm">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white shadow-xs">
               <Layers className="h-5 w-5" />
             </div>
             <div>
@@ -102,7 +157,7 @@ export function AppLayout() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                     isActive
-                      ? 'bg-brand-50 text-brand-700 shadow-xs'
+                      ? 'bg-brand-50 text-brand-700 shadow-2xs'
                       : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                   }`
                 }
@@ -116,7 +171,6 @@ export function AppLayout() {
 
         {/* Sidebar Footer — System Status & User Profile */}
         <div className="border-t border-slate-100 p-4 space-y-3">
-          {/* User Account Capsule */}
           {user && (
             <div className="flex items-center justify-between rounded-lg bg-slate-50 p-2.5 border border-slate-200/60">
               <div className="flex items-center gap-2.5 min-w-0">
@@ -139,7 +193,6 @@ export function AppLayout() {
             </div>
           )}
 
-          {/* Health Status Indicator */}
           <div className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-xs border border-slate-200/60">
             <div className="flex items-center gap-2">
               <Server className="h-3.5 w-3.5 text-slate-500" />
@@ -176,15 +229,91 @@ export function AppLayout() {
             >
               <Menu className="h-5 w-5" />
             </button>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-medium text-slate-400">Workspace /</span>
-              <span className="text-sm font-semibold text-slate-800">Personal Workspace</span>
+
+            {/* Interactive Workspace Switcher Dropdown */}
+            <div className="relative" ref={workspaceDropdownRef}>
+              <button
+                onClick={() => setWorkspaceMenuOpen(!workspaceMenuOpen)}
+                className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50/80 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+              >
+                <span className="text-slate-400">Workspace:</span>
+                <span className="font-semibold text-slate-900 truncate max-w-[150px] sm:max-w-[200px]">
+                  {currentWorkspace?.name || 'Personal Workspace'}
+                </span>
+                <ChevronDown className="h-3.5 w-3.5 text-slate-500" />
+              </button>
+
+              {/* Dropdown Menu */}
+              {workspaceMenuOpen && (
+                <div className="absolute left-0 mt-2 w-64 rounded-xl border border-slate-200 bg-white p-2 shadow-lg z-50">
+                  <div className="px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                    Switch Workspace
+                  </div>
+                  <div className="space-y-1">
+                    {workspaces.map((ws) => {
+                      const isActive = ws.id === currentWorkspace?.id;
+                      return (
+                        <div
+                          key={ws.id}
+                          className={`flex items-center justify-between rounded-lg px-2.5 py-2 text-xs transition-colors cursor-pointer ${
+                            isActive
+                              ? 'bg-brand-50 font-semibold text-brand-800'
+                              : 'text-slate-700 hover:bg-slate-100'
+                          }`}
+                          onClick={() => {
+                            setCurrentWorkspace(ws);
+                            setWorkspaceMenuOpen(false);
+                          }}
+                        >
+                          <div className="min-w-0 pr-2">
+                            <p className="truncate">{ws.name}</p>
+                            {ws.description && (
+                              <p className="truncate text-[10px] text-slate-400 font-normal">{ws.description}</p>
+                            )}
+                          </div>
+                          {isActive && <Check className="h-4 w-4 shrink-0 text-brand-600" />}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="mt-2 border-t border-slate-100 pt-2 space-y-1">
+                    <button
+                      onClick={handleOpenCreateWorkspace}
+                      className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium text-brand-700 hover:bg-brand-50 transition-colors"
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                      <span>Create New Workspace</span>
+                    </button>
+
+                    {currentWorkspace && (
+                      <button
+                        onClick={handleOpenEditWorkspace}
+                        className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors"
+                      >
+                        <Edit2 className="h-3.5 w-3.5 text-slate-400" />
+                        <span>Edit Current Workspace</span>
+                      </button>
+                    )}
+
+                    {currentWorkspace && workspaces.length > 1 && (
+                      <button
+                        onClick={() => handleDeleteWorkspace(currentWorkspace.id, currentWorkspace.name)}
+                        className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        <Trash2 className="h-3.5 w-3.5 text-red-500" />
+                        <span>Delete Current Workspace</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             <span className="hidden sm:inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
-              Milestone 2 Auth Active
+              Milestone 3 Active
             </span>
             {user && (
               <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 py-1 pl-2.5 pr-3 text-xs">
@@ -202,6 +331,20 @@ export function AppLayout() {
           </div>
         </main>
       </div>
+
+      {/* Workspace Create / Edit Modal */}
+      <WorkspaceModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        workspaceToEdit={editMode ? currentWorkspace : null}
+        onSave={async (name, desc) => {
+          if (editMode && currentWorkspace) {
+            await updateWorkspace(currentWorkspace.id, name, desc);
+          } else {
+            await createWorkspace(name, desc);
+          }
+        }}
+      />
     </div>
   );
 }

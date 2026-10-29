@@ -3,6 +3,7 @@ package com.lifestack.workspace.controller;
 import com.lifestack.common.response.ApiResponse;
 import com.lifestack.security.SecurityUser;
 import com.lifestack.workspace.dto.CreateWorkspaceRequest;
+import com.lifestack.workspace.dto.UpdateWorkspaceRequest;
 import com.lifestack.workspace.dto.WorkspaceResponse;
 import com.lifestack.workspace.service.WorkspaceService;
 import jakarta.validation.Valid;
@@ -51,6 +52,15 @@ public class WorkspaceController {
         return ResponseEntity.ok(ApiResponse.success(workspace));
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<ApiResponse<WorkspaceResponse>> updateWorkspace(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdateWorkspaceRequest request) {
+        WorkspaceResponse workspace = workspaceService.updateWorkspace(id, securityUser.getId(), request);
+        return ResponseEntity.ok(ApiResponse.success("Workspace updated successfully", workspace));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteWorkspace(
             @AuthenticationPrincipal SecurityUser securityUser,
@@ -59,4 +69,3 @@ public class WorkspaceController {
         return ResponseEntity.ok(ApiResponse.success("Workspace deleted successfully", null));
     }
 }
-

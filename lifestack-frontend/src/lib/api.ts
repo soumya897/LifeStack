@@ -49,6 +49,66 @@ export interface LoginPayload {
   password: string;
 }
 
+export interface CreateWorkspacePayload {
+  name: string;
+  description?: string;
+}
+
+export interface UpdateWorkspacePayload {
+  name?: string;
+  description?: string;
+  settings?: string;
+}
+
+export interface RoadmapSummaryItem {
+  id: string;
+  name: string;
+  status: string;
+  progressPercentage: number;
+  targetDate?: string;
+}
+
+export interface TaskSummaryItem {
+  id: string;
+  title: string;
+  status: string;
+  dueAt?: string;
+  overdue: boolean;
+}
+
+export interface ApplicationSummaryItem {
+  id: string;
+  companyName: string;
+  jobTitle: string;
+  status: string;
+  appliedAt?: string;
+}
+
+export interface ActivityItem {
+  id: string;
+  type: string;
+  title: string;
+  description: string;
+  timestamp: string;
+}
+
+export interface DashboardSummary {
+  workspaceId: string;
+  workspaceName: string;
+  activeRoadmapsCount: number;
+  completedRoadmapsCount: number;
+  tasksDueTodayCount: number;
+  overdueTasksCount: number;
+  completedTasksCount: number;
+  applicationsSubmittedThisMonthCount: number;
+  upcomingInterviewsCount: number;
+  followUpsDueCount: number;
+  recentRoadmaps: RoadmapSummaryItem[];
+  priorityTasks: TaskSummaryItem[];
+  recentApplications: ApplicationSummaryItem[];
+  recentActivity: ActivityItem[];
+}
+
 export class ApiError extends Error {
   constructor(public status: number, message: string, public data?: unknown) {
     super(message);
@@ -118,10 +178,25 @@ export const api = {
   workspaces: {
     list: () => apiClient<Workspace[]>('/workspaces'),
     get: (id: string) => apiClient<Workspace>(`/workspaces/${id}`),
-    create: (payload: { name: string; description?: string }) =>
+    create: (payload: CreateWorkspacePayload) =>
       apiClient<Workspace>('/workspaces', {
         method: 'POST',
         body: JSON.stringify(payload),
       }),
+    update: (id: string, payload: UpdateWorkspacePayload) =>
+      apiClient<Workspace>(`/workspaces/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(payload),
+      }),
+    delete: (id: string) =>
+      apiClient<void>(`/workspaces/${id}`, {
+        method: 'DELETE',
+      }),
+  },
+  analytics: {
+    dashboard: (workspaceId?: string) => {
+      const query = workspaceId ? `?workspaceId=${encodeURIComponent(workspaceId)}` : '';
+      return apiClient<DashboardSummary>(`/analytics/dashboard${query}`);
+    },
   },
 };

@@ -4,6 +4,7 @@ import com.lifestack.common.exception.ResourceNotFoundException;
 import com.lifestack.user.entity.User;
 import com.lifestack.user.repository.UserRepository;
 import com.lifestack.workspace.dto.CreateWorkspaceRequest;
+import com.lifestack.workspace.dto.UpdateWorkspaceRequest;
 import com.lifestack.workspace.dto.WorkspaceResponse;
 import com.lifestack.workspace.entity.Workspace;
 import com.lifestack.workspace.repository.WorkspaceRepository;
@@ -54,10 +55,36 @@ public class WorkspaceService {
     }
 
     @Transactional
-    public void deleteWorkspace(UUID workspaceId, UUID userId) {
+    public WorkspaceResponse updateWorkspace(UUID workspaceId, UUID userId, UpdateWorkspaceRequest request) {
         Workspace workspace = workspaceRepository.findByIdAndOwnerId(workspaceId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Workspace not found: " + workspaceId));
+
+        if (request.getName() != null && !request.getName().isBlank()) {
+            workspace.setName(request.getName().trim());
+        }
+        if (request.getDescription() != null) {
+            workspace.setDescription(request.getDescription().trim());
+        }
+        if (request.getSettings() != null) {
+            workspace.setSettings(request.getSettings());
+        }
+
+        Workspace updated = workspaceRepository.save(workspace);
+        return WorkspaceResponse.fromEntity(updated);
+    }
+
+    @Transactional
+    public void deleteWorkspace(UUID workspaceId, UUID userId) {
+        // Strict ownership check first: must belong to this user
+        Workspace workspace = workspaceRepository.findByIdAndOwnerId(workspaceId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Workspace not found: " + workspaceId));
+
+        // Then verify user has more than 1 workspace
+        List<Workspace> userWorkspaces = workspaceRepository.findByOwnerIdOrderByCreatedAtAsc(userId);
+        if (userWorkspaces.size() <= 1) {
+            throw new IllegalArgumentException("Cannot delete your only workspace");
+        }
+
         workspaceRepository.delete(workspace);
     }
 }
-
