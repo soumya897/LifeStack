@@ -5,8 +5,6 @@ import com.lifestack.job.entity.WorkMode;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
-import java.util.Map;
-import java.util.UUID;
 
 public class UpdateApplicationRequest {
 

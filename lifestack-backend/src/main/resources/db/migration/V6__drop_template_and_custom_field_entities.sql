@@ -12,3 +12,4 @@ DROP TABLE IF EXISTS custom_records CASCADE;
 DROP TABLE IF EXISTS field_definitions CASCADE;
 DROP TABLE IF EXISTS template_versions CASCADE;
 DROP TABLE IF EXISTS templates CASCADE;
+
