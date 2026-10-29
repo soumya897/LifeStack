@@ -206,6 +206,53 @@ export interface CreateResourcePayload {
   topicId?: string;
 }
 
+export type ScheduleItemType = 'TASK' | 'TOPIC' | 'ROADMAP' | 'JOB_APPLICATION' | 'CUSTOM_ALERT';
+export type AlertPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+export type ScheduleStatus = 'PENDING' | 'COMPLETED' | 'DISMISSED';
+
+export interface ScheduleItem {
+  id: string;
+  workspaceId: string;
+  ownerId: string;
+  title: string;
+  description?: string;
+  itemType: ScheduleItemType;
+  targetId?: string;
+  targetName?: string;
+  scheduledAt: string;
+  priority: AlertPriority;
+  status: ScheduleStatus;
+  soundEnabled: boolean;
+  notifiedAt?: string;
+  overdue: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateSchedulePayload {
+  workspaceId: string;
+  title: string;
+  description?: string;
+  itemType?: ScheduleItemType;
+  targetId?: string;
+  targetName?: string;
+  scheduledAt: string;
+  priority?: AlertPriority;
+  soundEnabled?: boolean;
+}
+
+export interface UpdateSchedulePayload {
+  title?: string;
+  description?: string;
+  itemType?: ScheduleItemType;
+  targetId?: string;
+  targetName?: string;
+  scheduledAt?: string;
+  priority?: AlertPriority;
+  status?: ScheduleStatus;
+  soundEnabled?: boolean;
+}
+
 export type ApplicationStatus =
   | 'SAVED'
   | 'APPLIED'
@@ -746,6 +793,38 @@ export const api = {
       }),
     unlinkTopic: (topicId: string, resourceId: string) =>
       apiClient<void>(`/topics/${topicId}/resources/${resourceId}`, {
+        method: 'DELETE',
+      }),
+  },
+  schedules: {
+    list: (workspaceId: string, status?: ScheduleStatus, itemType?: ScheduleItemType) => {
+      const params = new URLSearchParams({ workspaceId });
+      if (status) params.append('status', status);
+      if (itemType) params.append('itemType', itemType);
+      return apiClient<ScheduleItem[]>(`/schedules?${params.toString()}`);
+    },
+    get: (id: string) => apiClient<ScheduleItem>(`/schedules/${id}`),
+    create: (payload: CreateSchedulePayload) =>
+      apiClient<ScheduleItem>('/schedules', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+    update: (id: string, payload: UpdateSchedulePayload) =>
+      apiClient<ScheduleItem>(`/schedules/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(payload),
+      }),
+    updateStatus: (id: string, status: ScheduleStatus) =>
+      apiClient<ScheduleItem>(`/schedules/${id}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status }),
+      }),
+    acknowledge: (id: string) =>
+      apiClient<ScheduleItem>(`/schedules/${id}/acknowledge`, {
+        method: 'PATCH',
+      }),
+    delete: (id: string) =>
+      apiClient<void>(`/schedules/${id}`, {
         method: 'DELETE',
       }),
   },

@@ -1,6 +1,7 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { DashboardPage } from '@/features/dashboard/DashboardPage';
+import { SchedulePage } from '@/features/schedule/SchedulePage';
 import { LoginPage } from '@/features/auth/LoginPage';
 import { RegisterPage } from '@/features/auth/RegisterPage';
 import { ProtectedRoute } from '@/features/auth/ProtectedRoute';
@@ -13,21 +14,6 @@ import { JobTrackerPage } from '@/features/jobs/JobTrackerPage';
 import { ApplicationDetailPage } from '@/features/jobs/ApplicationDetailPage';
 import { AnalyticsPage } from '@/features/analytics/AnalyticsPage';
 import { SettingsPage } from '@/features/settings/SettingsPage';
-
-function FeaturePlaceholder({ title, description }: { title: string; description: string }) {
-  return (
-    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white p-12 text-center">
-      <div className="rounded-full bg-slate-100 p-3 text-slate-500">
-        <span className="text-xl font-bold">#</span>
-      </div>
-      <h2 className="mt-4 text-lg font-bold text-slate-800">{title}</h2>
-      <p className="mt-1 max-w-md text-sm text-slate-500">{description}</p>
-      <span className="mt-4 inline-flex items-center rounded-md bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 border border-amber-200">
-        Scheduled for upcoming milestone
-      </span>
-    </div>
-  );
-}
 
 export const router = createBrowserRouter([
   {
@@ -50,13 +36,12 @@ export const router = createBrowserRouter([
             element: <DashboardPage />,
           },
           {
+            path: 'schedule',
+            element: <SchedulePage />,
+          },
+          {
             path: 'today',
-            element: (
-              <FeaturePlaceholder
-                title="Today Screen"
-                description="View tasks due today, overdue items, and scheduled learning targets."
-              />
-            ),
+            element: <Navigate to="/schedule" replace />,
           },
           {
             path: 'learning',

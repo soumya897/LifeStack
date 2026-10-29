@@ -10,6 +10,8 @@ import com.lifestack.job.repository.JobApplicationRepository;
 import com.lifestack.learning.entity.Roadmap;
 import com.lifestack.learning.entity.RoadmapStatus;
 import com.lifestack.learning.repository.RoadmapRepository;
+import com.lifestack.schedule.entity.ScheduleStatus;
+import com.lifestack.schedule.repository.ScheduleRepository;
 import com.lifestack.workspace.entity.Workspace;
 import com.lifestack.workspace.repository.WorkspaceRepository;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -34,6 +37,7 @@ public class DashboardService {
     private final RoadmapRepository roadmapRepository;
     private final JobApplicationRepository applicationRepository;
     private final InterviewEventRepository interviewEventRepository;
+    private final ScheduleRepository scheduleRepository;
 
     private static final Set<ApplicationStatus> TERMINAL_JOB_STATUSES = EnumSet.of(
             ApplicationStatus.REJECTED,
@@ -44,11 +48,13 @@ public class DashboardService {
     public DashboardService(WorkspaceRepository workspaceRepository,
                             RoadmapRepository roadmapRepository,
                             JobApplicationRepository applicationRepository,
-                            InterviewEventRepository interviewEventRepository) {
+                            InterviewEventRepository interviewEventRepository,
+                            ScheduleRepository scheduleRepository) {
         this.workspaceRepository = workspaceRepository;
         this.roadmapRepository = roadmapRepository;
         this.applicationRepository = applicationRepository;
         this.interviewEventRepository = interviewEventRepository;
+        this.scheduleRepository = scheduleRepository;
     }
 
     @Transactional(readOnly = true)
@@ -82,10 +88,21 @@ public class DashboardService {
         response.setActiveRoadmapsCount((int) activeRoadmaps);
         response.setCompletedRoadmapsCount((int) completedRoadmaps);
 
-        // Tasks placeholder (Milestone 8)
-        response.setTasksDueTodayCount(0);
-        response.setOverdueTasksCount(0);
-        response.setCompletedTasksCount(0);
+        // Real counts for Milestone 8: Schedules & Tasks
+        LocalDate todayDate = LocalDate.now();
+        Instant startOfToday = todayDate.atStartOfDay(ZoneOffset.UTC).toInstant();
+        Instant endOfToday = todayDate.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+
+        long tasksDueToday = scheduleRepository.countByWorkspaceIdAndStatusAndScheduledAtBetween(
+                activeWorkspace.getId(), ScheduleStatus.PENDING, startOfToday, endOfToday);
+        long overdueTasks = scheduleRepository.countByWorkspaceIdAndStatusAndScheduledAtLessThan(
+                activeWorkspace.getId(), ScheduleStatus.PENDING, Instant.now());
+        long completedTasks = scheduleRepository.countByWorkspaceIdAndStatus(
+                activeWorkspace.getId(), ScheduleStatus.COMPLETED);
+
+        response.setTasksDueTodayCount((int) tasksDueToday);
+        response.setOverdueTasksCount((int) overdueTasks);
+        response.setCompletedTasksCount((int) completedTasks);
 
         // Real counts for Milestone 6: Job applications
         YearMonth currentMonth = YearMonth.now();

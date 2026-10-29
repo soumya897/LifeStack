@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
-  CalendarCheck,
+  BellRing,
   Compass,
   Code2,
   FileText,
@@ -29,10 +29,12 @@ import { useAuth } from '@/features/auth/AuthContext';
 import { useWorkspace } from '@/features/workspace/WorkspaceContext';
 import { WorkspaceModal } from '@/features/workspace/WorkspaceModal';
 import { PwaInstallPrompt, PwaInstallHeaderButton, PwaInstallSidebarItem } from '@/components/pwa/PwaInstallPrompt';
+import { useScheduleAlerts } from '@/features/schedule/useScheduleAlerts';
+import { ScheduleAlertModal } from '@/features/schedule/ScheduleAlertModal';
 
 const navigationItems = [
   { name: 'Dashboard', to: '/', icon: LayoutDashboard },
-  { name: 'Today', to: '/today', icon: CalendarCheck },
+  { name: 'Schedule & Alerts', to: '/schedule', icon: BellRing },
   { name: 'Learning & Roadmaps', to: '/learning', icon: Compass },
   { name: 'Coding Practice', to: '/coding', icon: Code2 },
   { name: 'Notes', to: '/notes', icon: FileText },
@@ -51,6 +53,8 @@ export function AppLayout() {
   const [workspaceMenuOpen, setWorkspaceMenuOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
+
+  const { activeAlert, dismissAlert } = useScheduleAlerts();
 
   const workspaceDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -348,6 +352,9 @@ export function AppLayout() {
 
       {/* PWA Install Floating Prompt */}
       <PwaInstallPrompt />
+
+      {/* Real-time Schedule Audio & Visual Alert Modal */}
+      <ScheduleAlertModal alert={activeAlert} onClose={dismissAlert} />
     </div>
   );
 }

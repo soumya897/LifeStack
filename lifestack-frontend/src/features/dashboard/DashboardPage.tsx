@@ -184,11 +184,11 @@ export function DashboardPage() {
             <span>Create Roadmap</span>
           </button>
           <button
-            onClick={() => navigate('/today')}
+            onClick={() => navigate('/schedule')}
             className="flex items-center gap-2.5 rounded-lg border border-slate-200/60 bg-slate-50/60 p-2.5 text-xs font-semibold text-slate-700 hover:bg-amber-50 hover:border-amber-200 hover:text-amber-700 transition-colors"
           >
             <Calendar className="h-4 w-4 text-amber-600" />
-            <span>Add Task</span>
+            <span>Schedule Alert</span>
           </button>
           <button
             onClick={() => navigate('/jobs')}
@@ -274,10 +274,10 @@ export function DashboardPage() {
                 <h2 className="text-base font-bold text-slate-900">Tasks Due & Overdue</h2>
               </div>
               <button
-                onClick={() => navigate('/today')}
-                className="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 hover:text-amber-800"
+                onClick={() => navigate('/schedule')}
+                className="inline-flex items-center gap-1 text-xs font-semibold text-brand-700 hover:text-brand-800"
               >
-                Open Today view <ArrowRight className="h-3.5 w-3.5" />
+                Open Schedule & Alerts <ArrowRight className="h-3.5 w-3.5" />
               </button>
             </div>
 
