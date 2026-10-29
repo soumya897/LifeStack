@@ -13,8 +13,6 @@ import java.util.UUID;
 public class CreateApplicationRequest {
 
     private UUID workspaceId;
-    private UUID templateVersionId;
-    private Map<String, Object> customFields = new HashMap<>();
 
     @NotBlank(message = "Company name is required")
     @Size(max = 200, message = "Company name must not exceed 200 characters")
@@ -162,22 +160,6 @@ public class CreateApplicationRequest {
 
     public void setInitialHistoryNote(String initialHistoryNote) {
         this.initialHistoryNote = initialHistoryNote;
-    }
-
-    public UUID getTemplateVersionId() {
-        return templateVersionId;
-    }
-
-    public void setTemplateVersionId(UUID templateVersionId) {
-        this.templateVersionId = templateVersionId;
-    }
-
-    public Map<String, Object> getCustomFields() {
-        return customFields;
-    }
-
-    public void setCustomFields(Map<String, Object> customFields) {
-        this.customFields = customFields != null ? customFields : new HashMap<>();
     }
 }
 

@@ -1,6 +1,5 @@
 package com.lifestack.job.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lifestack.common.exception.ResourceNotFoundException;
 import com.lifestack.job.dto.*;
 import com.lifestack.job.entity.ApplicationHistory;
@@ -12,9 +11,6 @@ import com.lifestack.job.repository.InterviewEventRepository;
 import com.lifestack.job.repository.JobApplicationRepository;
 import com.lifestack.note.entity.Note;
 import com.lifestack.note.repository.NoteRepository;
-import com.lifestack.template.entity.TemplateVersion;
-import com.lifestack.template.repository.TemplateVersionRepository;
-import com.lifestack.template.service.CustomFieldValidatorService;
 import com.lifestack.user.entity.User;
 import com.lifestack.user.repository.UserRepository;
 import com.lifestack.workspace.entity.Workspace;
@@ -38,9 +34,6 @@ public class JobApplicationService {
     private final WorkspaceRepository workspaceRepository;
     private final UserRepository userRepository;
     private final NoteRepository noteRepository;
-    private final TemplateVersionRepository versionRepository;
-    private final CustomFieldValidatorService validatorService;
-    private final ObjectMapper objectMapper;
 
     private static final Set<ApplicationStatus> TERMINAL_STATUSES = EnumSet.of(
             ApplicationStatus.REJECTED,
@@ -53,19 +46,13 @@ public class JobApplicationService {
                                  ApplicationHistoryRepository historyRepository,
                                  WorkspaceRepository workspaceRepository,
                                  UserRepository userRepository,
-                                 NoteRepository noteRepository,
-                                 TemplateVersionRepository versionRepository,
-                                 CustomFieldValidatorService validatorService,
-                                 ObjectMapper objectMapper) {
+                                 NoteRepository noteRepository) {
         this.applicationRepository = applicationRepository;
         this.interviewEventRepository = interviewEventRepository;
         this.historyRepository = historyRepository;
         this.workspaceRepository = workspaceRepository;
         this.userRepository = userRepository;
         this.noteRepository = noteRepository;
-        this.versionRepository = versionRepository;
-        this.validatorService = validatorService;
-        this.objectMapper = objectMapper;
     }
 
     @Transactional(readOnly = true)
@@ -118,21 +105,6 @@ public class JobApplicationService {
                 request.getNotes(),
                 request.getFollowUpAt()
         );
-
-        if (request.getTemplateVersionId() != null) {
-            TemplateVersion version = versionRepository.findById(request.getTemplateVersionId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Template version not found"));
-            if (!version.getTemplate().getOwner().getId().equals(userId)) {
-                throw new ResourceNotFoundException("Template version not found");
-            }
-            validatorService.validateCustomFields(version, request.getCustomFields());
-            app.setTemplateVersion(version);
-            try {
-                app.setCustomFields(objectMapper.writeValueAsString(request.getCustomFields()));
-            } catch (Exception e) {
-                throw new RuntimeException("Error serializing custom fields", e);
-            }
-        }
 
         JobApplication saved = applicationRepository.save(app);
 
@@ -191,27 +163,6 @@ public class JobApplicationService {
         }
         if (request.getFollowUpAt() != null) {
             app.setFollowUpAt(request.getFollowUpAt());
-        }
-
-        if (request.getTemplateVersionId() != null) {
-            TemplateVersion version = versionRepository.findById(request.getTemplateVersionId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Template version not found"));
-            if (!version.getTemplate().getOwner().getId().equals(userId)) {
-                throw new ResourceNotFoundException("Template version not found");
-            }
-            app.setTemplateVersion(version);
-        }
-
-        if (request.getCustomFields() != null) {
-            TemplateVersion version = app.getTemplateVersion();
-            if (version != null) {
-                validatorService.validateCustomFields(version, request.getCustomFields());
-            }
-            try {
-                app.setCustomFields(objectMapper.writeValueAsString(request.getCustomFields()));
-            } catch (Exception e) {
-                throw new RuntimeException("Error serializing custom fields", e);
-            }
         }
 
         JobApplication updated = applicationRepository.save(app);

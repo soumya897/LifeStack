@@ -10,10 +10,6 @@ import java.util.UUID;
 
 public class UpdateApplicationRequest {
 
-    private UUID templateVersionId;
-
-    private Map<String, Object> customFields;
-
     @Size(max = 200, message = "Company name must not exceed 200 characters")
     private String companyName;
 
@@ -141,22 +137,6 @@ public class UpdateApplicationRequest {
 
     public void setStatusChangeNote(String statusChangeNote) {
         this.statusChangeNote = statusChangeNote;
-    }
-
-    public UUID getTemplateVersionId() {
-        return templateVersionId;
-    }
-
-    public void setTemplateVersionId(UUID templateVersionId) {
-        this.templateVersionId = templateVersionId;
-    }
-
-    public Map<String, Object> getCustomFields() {
-        return customFields;
-    }
-
-    public void setCustomFields(Map<String, Object> customFields) {
-        this.customFields = customFields;
     }
 }
 

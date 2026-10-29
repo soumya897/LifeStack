@@ -19,10 +19,9 @@ The core product idea is to combine:
 - Notes, resources, and coding problems attached to topics
 - Configurable progress calculations and elapsed-time tracking
 - A job application tracker with interview stages and monthly analytics
-- A reusable custom-template and custom-field system
 - A daily dashboard that shows priorities and progress
 
-**Product principle:** use a shared, reusable foundation for records and customization, while keeping important business entities—such as roadmaps, topics, coding problems, applications, and interview events—structured and queryable.
+**Product principle:** keep important business entities—such as roadmaps, topics, coding problems, applications, and interview events—structured, intuitive, queryable, and streamlined for daily productivity.
 
 ## 2. Goals
 
@@ -32,11 +31,10 @@ The core product idea is to combine:
 3. Track completion percentage, creation date, start date, target date, elapsed days, and overdue status.
 4. Support coding problems at configurable difficulty levels such as Basic, Medium, and Hard.
 5. Let users record job applications, sources, job links, application dates, interview rounds, and outcomes.
-6. Let users create custom templates and optional/required fields without needing database schema changes for each new field.
-7. Provide monthly and overall analytics.
-8. Make the app responsive and installable as a Progressive Web App (PWA).
-9. Protect each user's data from access by other users.
-10. Build a portfolio-quality application with a maintainable architecture.
+6. Provide monthly and overall analytics.
+7. Make the app responsive and installable as a Progressive Web App (PWA).
+8. Protect each user's data from access by other users.
+9. Build a portfolio-quality application with a maintainable architecture.
 
 ### Non-goals for the MVP
 - AI-generated study plans or notes
@@ -81,10 +79,6 @@ Use the following terminology consistently in the UI and code:
 - **Resource:** a URL or uploaded file attached to a relevant record.
 - **Application:** one specific job opportunity submitted to a company.
 - **Interview event:** one assessment or interview round related to an application.
-- **Template:** reusable definition of a record form.
-- **Template version:** an immutable or safely versioned set of field definitions.
-- **Field definition:** metadata describing a custom field.
-- **Custom record:** a record created from a flexible template.
 - **Dashboard widget:** a summary component shown on the dashboard.
 
 Do not treat a company as the application record. One company may have multiple vacancies and applications.
@@ -149,7 +143,7 @@ If a same-site proxy or shared custom domain is not feasible, explicitly evaluat
 8. Settings
    - Profile and account security
    - Appearance and timezone
-   - Templates and custom fields
+   - Active workspace management
    - Data export and account deletion
 
 ### Screen 1: Dashboard
@@ -294,40 +288,14 @@ Define reporting semantics carefully:
 - Applications created in a month are a different metric from applications submitted in a month.
 - Distinguish companies from individual applications.
 
-### Screen 8: Customization Studio
-Route: `/settings/templates`
+### Screen 8: Settings
+Route: `/settings`
 
-Features:
-- Create and edit templates
-- Choose a record type or supported module
-- Add, rename, reorder, and remove fields
-- Select field type
-- Configure required/optional
-- Configure dropdown options, numeric bounds, and validation
-- Preview the form before publishing
-- Publish new template versions
-- Decide how existing records behave when fields change
-
-Supported field types for MVP:
-- Text
-- Long text
-- Number
-- Date
-- URL
-- Email
-- Boolean / checkbox
-- Single-select
-- Multi-select
-
-Keep built-in business fields such as application status, application date, roadmap status, and topic completion as structured columns. Custom fields supplement core fields rather than replacing them.
-
-### Screen 9: Settings
 Features:
 - Profile and security
+- Active workspace management
 - Timezone and date preferences
-- Theme
-- Default progress settings
-- Template management
+- Architecture & platform capabilities inspection
 - Export data
 - Delete account and personal data, subject to applicable retention requirements
 
@@ -488,14 +456,10 @@ Use explicit junction tables such as `topic_notes`, `problem_notes`, `applicatio
 - `applied_at`
 - `status`
 - `follow_up_at`
-- `template_version_id` nullable FK to `template_versions.id` (add in a later Flyway migration when the template tables are introduced, if implementing milestones incrementally)
-- `custom_fields` JSONB, defaulting to an empty object (add alongside the custom-field feature migration)
 - `created_at`
 - `updated_at`
 
-Use `template_version_id` to identify the published field definition set used to validate an application's custom fields. The Java service must validate each key and value against that version's `field_definitions`, including field type, required rules, select options, and configured constraints. Keep core application fields such as status and application date as typed columns.
-
-For this MVP, application custom-field values live in `applications.custom_fields`; `field_values` remains the value store for records created from `custom_records`. Do not store the same application custom values in both places. Because the template engine is deferred until Milestone 7, add the application custom-field columns and foreign key in a later Flyway migration after the template tables exist; do not create a forward reference to a table that has not yet been migrated. Add indexes only for custom-field queries that the product actually needs; PostgreSQL JSONB indexing can be introduced deliberately later.
+Keep core application fields such as status and application date as typed columns.
 
 Add other frequently queried core fields as proper columns when justified.
 
@@ -511,53 +475,7 @@ Add other frequently queried core fields as proper columns when justified.
 - `created_at`
 - `updated_at`
 
-Use an application activity/history table if a durable history of status changes is required.
-
-### Customization
-#### `templates`
-- `id` UUID
-- `owner_id` FK
-- `name`
-- `record_type`
-- `created_at`
-- `updated_at`
-
-#### `template_versions`
-- `id` UUID
-- `template_id` FK
-- `version_number`
-- `status` (draft/published/archived)
-- `published_at`
-- `created_at`
-
-#### `field_definitions`
-- `id` UUID
-- `version_id` FK
-- `field_key` stable identifier
-- `label`
-- `field_type`
-- `required`
-- `config` JSONB
-- `sort_order`
-- `created_at`
-
-#### `custom_records`
-- `id` UUID
-- `owner_id` FK
-- `template_version_id` FK
-- `title` or display label
-- `created_at`
-- `updated_at`
-
-#### `field_values`
-- `id` UUID
-- `record_id` FK
-- `field_definition_id` FK
-- `value_json` JSONB
-- `created_at`
-- `updated_at`
-
-Use database constraints where practical to ensure values refer to a field definition in the record's template version. Consider uniqueness on `(record_id, field_definition_id)`.
+Use an application activity/history table (`application_history`) if a durable history of status changes is required.
 
 ### Schema design rules
 - Use UUID identifiers for exposed records.
@@ -566,47 +484,10 @@ Use database constraints where practical to ensure values refer to a field defin
 - Enforce authorization through ownership and parent relationships.
 - Use migrations with Flyway; do not rely on production Hibernate auto-DDL.
 - Keep critical fields typed and queryable.
-- For job applications, validate `custom_fields` JSONB against the referenced immutable `template_version_id` in the backend.
-- Use `field_values` for generic `custom_records`; do not duplicate application custom values there.
-- Use JSONB only for flexible metadata/configuration, not for the entire application data model.
 - Define soft deletion or archive behavior explicitly.
 - Use transactions for multi-table writes.
 
-## 9. Custom Template and Field Engine
-
-The custom-field system is a central product feature.
-
-### Template workflow
-1. User creates a template.
-2. User chooses a supported record type.
-3. User adds and configures fields.
-4. User previews a generated form.
-5. User publishes a template version.
-6. User creates records from that version.
-7. The backend validates and stores submitted values.
-8. Reports query strongly typed core fields and only use custom fields where necessary.
-
-### Field definition example
-A definition may contain:
-- Stable `field_key`, e.g. `recruiter_email`
-- Display label, e.g. `Recruiter Email`
-- Type, e.g. `EMAIL`
-- `required = false`
-- Config such as dropdown options or numeric limits
-- Display order
-
-### Versioning behavior
-- Published template versions should not be silently mutated in ways that corrupt existing records.
-- Editing a published template should create a new draft/version.
-- Define whether existing records remain on their original version or are explicitly migrated.
-- Renaming a label should not change the stable key.
-- Removing a field must have a defined archival/migration policy.
-- Type changes must validate or migrate existing values.
-- Never execute user-defined JavaScript, SQL, or arbitrary expressions from field configuration.
-
-For MVP, support custom fields primarily for custom records and selected modules such as job applications. Do not force every entity to be entirely dynamic.
-
-## 10. REST API Outline
+## 9. REST API Outline
 
 Prefix: `/api/v1`
 
@@ -647,24 +528,12 @@ Prefix: `/api/v1`
 - `PATCH /problems/{id}`
 - `DELETE /problems/{id}`
 
-### Notes
+### Notes and Resources
 - `GET /notes`
 - `POST /notes`
 - `GET /notes/{id}`
 - `PATCH /notes/{id}`
 - `DELETE /notes/{id}`
-
-### Templates and custom records
-- `GET /templates`
-- `POST /templates`
-- `POST /templates/{id}/versions`
-- `POST /templates/{id}/publish`
-- `GET /templates/{id}`
-- `POST /records`
-- `GET /records`
-- `GET /records/{id}`
-- `PATCH /records/{id}`
-- `DELETE /records/{id}`
 
 ### Job applications
 - `GET /applications`
@@ -713,8 +582,6 @@ lifestack-backend/
 │   ├── problem/
 │   ├── note/
 │   ├── resource/
-│   ├── template/
-│   ├── customrecord/
 │   ├── application/
 │   ├── interview/
 │   └── analytics/
@@ -747,7 +614,6 @@ lifestack-frontend/
 │   │   ├── coding/
 │   │   ├── notes/
 │   │   ├── jobs/
-│   │   ├── templates/
 │   │   └── analytics/
 │   ├── lib/
 │   ├── hooks/
@@ -778,7 +644,7 @@ Required:
 - Secure session handling and logout
 - CSRF protection when using cookie-based sessions
 - Deliberate CORS and cookie configuration
-- Server-side validation for all inputs, including custom fields
+- Server-side validation for all inputs
 - Ownership checks on every private resource
 - Parameterized database queries
 - Safe rendering of user-generated notes and text
@@ -789,22 +655,19 @@ Required:
 - Account deletion and data export
 - Error responses that do not leak secrets or stack traces
 
-Critical authorization test: create two users and confirm that one user cannot read, update, or delete the other user's workspaces, roadmaps, notes, templates, custom records, applications, or interview events.
+Critical authorization test: create two users and confirm that one user cannot read, update, or delete the other user's workspaces, roadmaps, notes, coding problems, applications, or interview events.
 
 ## 14. Testing Strategy
 
 ### Backend
-- Unit tests for progress calculations and custom-field validation
+- Unit tests for progress calculations and ownership verification
 - Integration tests for repositories and database migrations
 - API tests for CRUD operations
 - Authentication and authorization tests
-- Template versioning tests
 - Monthly report date-boundary tests
 - Tests for empty roadmaps, archived items, and invalid weights
-- Tests for invalid custom field types and missing required values
 
 ### Frontend
-- Component tests for dynamic forms and status changes
 - Form validation tests
 - Loading, empty, and error state tests
 - Responsive layout checks
@@ -816,13 +679,11 @@ Critical authorization test: create two users and confirm that one user cannot r
 2. The user can create a DSA roadmap and add unlimited topics.
 3. A topic can contain multiple problems, notes, and resources.
 4. Progress and elapsed-day values update correctly.
-5. A user can create a job template with optional and required fields.
-6. Adding a custom field does not require a database migration.
-7. An application can have multiple interview events and outcomes.
-8. Monthly reports use application dates and interview-event dates correctly.
-9. The PWA can be installed in supported browsers.
-10. One user cannot access another user's data.
-11. The app handles validation failures and network errors gracefully.
+5. An application can have multiple interview events and outcomes.
+6. Monthly reports use application dates and interview-event dates correctly.
+7. The PWA can be installed in supported browsers.
+8. One user cannot access another user's data.
+9. The app handles validation failures and network errors gracefully.
 
 ## 15. Development Milestones
 
@@ -864,29 +725,20 @@ Estimated effort is approximate for one developer; the schedule depends on avail
 - Application CRUD, table, filters, and statuses
 - Interview events and history
 - Monthly application reporting using typed core fields
-- Defer the dynamic custom-field form for applications until the template engine milestone
 
-### Milestone 7 — Custom templates and application custom fields (5–7 days)
-- Template and version tables
-- Field definition configuration
-- Dynamic form renderer and preview
-- Server-side custom-field validation
-- Versioning behavior
-- Attach a nullable `template_version_id` and validated `custom_fields` JSONB payload to applications
-
-### Milestone 8 — Analytics and testing (3–5 days)
-- Dashboard calculations
-- Monthly reports
+### Milestone 7 — Analytics and reporting (3–5 days)
+- Dashboard calculations & metrics
+- Monthly job pipeline conversion reports
 - Integration and authorization tests
-- Edge-case fixes
+- System performance optimization
 
-### Milestone 9 — PWA and deployment (3–4 days)
+### Milestone 8 — PWA and deployment (3–4 days)
 - Manifest, icons, service worker
 - Update handling
 - HTTPS deployment
 - Production database and environment configuration
 
-### Milestone 10 — Polish and release (2–4 days)
+### Milestone 9 — Polish and release (2–4 days)
 - Responsive and accessibility checks
 - Error handling
 - Export/backup verification
@@ -989,16 +841,10 @@ Build a responsive, installable PWA where users can manage learning roadmaps, to
 4. Tasks and progress calculations.
 5. Coding problems with difficulty, statements, solutions, language, approach, and complexity.
 6. Notes, tags, resources, and record links.
-7. Job applications with source, URL, application date, configurable status, and optional custom fields.
+7. Job applications with source, URL, application date, configurable status, salary, and notes.
 8. Interview events with dates, round types, outcomes, and feedback.
-9. Custom templates, template versions, field definitions, and custom record values.
-10. Dashboard and monthly analytics.
-11. PWA installation and a scoped offline fallback.
-
-## Customization requirements
-Users must be able to create reusable templates, add/rename/reorder fields, choose field types, set required/optional rules, configure dropdown options and validation, preview forms, and publish new template versions. Support Text, Long Text, Number, Date, URL, Email, Boolean, Single Select, and Multi Select fields.
-
-Do not create a new database column for every user-defined field. Use a versioned field-definition/value model for flexible data, while keeping important fields such as application date, application status, roadmap status, and topic completion in strongly typed relational columns. Use JSONB only for suitable flexible configuration and values. Never execute user-supplied JavaScript, SQL, or arbitrary formulas.
+9. Dashboard and monthly analytics.
+10. PWA installation and a scoped offline fallback.
 
 ## Core product behavior
 - Roadmaps can contain unlimited topics.
@@ -1010,8 +856,6 @@ Do not create a new database column for every user-defined field. Use a versione
 - A job application represents one vacancy/application, not just a company.
 - An application can have multiple interview events and a history of status changes.
 - Monthly application reports use application dates; interview reports use event dates.
-- Custom fields are optional unless explicitly configured as required.
-- Template changes must not silently corrupt existing records.
 
 ## Security requirements
 - Hash passwords securely.
@@ -1021,7 +865,7 @@ Do not create a new database column for every user-defined field. Use a versione
 - Configure CSRF, CORS, cookie settings, session expiration, and logout correctly.
 - Derive the current user from the authenticated principal; never trust a client-supplied owner ID.
 - Check ownership for every private read, create, update, and delete operation.
-- Validate inputs on the server, including custom-field values.
+- Validate inputs on the server.
 - Use DTOs rather than exposing persistence entities directly.
 - Use foreign keys, indexes, transactions, parameterized queries, and Flyway migrations.
 - Do not commit secrets.
@@ -1034,9 +878,8 @@ Create a polished, accessible, responsive SaaS interface with:
 - Roadmap cards and topic details
 - Coding problem lists and solution editor
 - Notes library
-- Job application table and Kanban view
+- Job application table and pipeline cards
 - Application detail timeline and interview events
-- Custom template builder with preview
 - Analytics charts and date filters
 - Settings and account management
 - Useful loading, empty, validation, error, and offline states
@@ -1047,7 +890,7 @@ Use consistent components, sensible spacing, accessible labels, keyboard support
 Treat this attached LifeStack Project Documentation as the authoritative product specification, not optional background reading. Follow Section 16 (Recommended First Vertical Slice) and this Appendix A's implementation rules exactly unless I explicitly approve a change. If this prompt and the document appear to conflict, stop and identify the conflict instead of silently choosing one.
 
 1. Begin by inspecting the existing repository and reporting its current state, if one exists.
-2. Before implementation, produce a concise architecture plan, ER diagram, initial schema, endpoint list, and milestone checklist. The ER diagram must reflect the application custom-field design: nullable `applications.template_version_id` plus `applications.custom_fields` JSONB, validated against that template version's field definitions.
+2. Before implementation, produce a concise architecture plan, ER diagram, initial schema, endpoint list, and milestone checklist.
 3. Implement in small, reviewable vertical slices. The first end-to-end slice must follow Section 16: register → workspace → DSA roadmap → ArrayList topic → one coding problem and one note → mark the topic complete (or complete a task for task-based progress) → calculate progress → show updated dashboard progress. Do not assume that marking a coding problem solved automatically completes its topic.
 4. Before each milestone, list files to create/change and the acceptance criteria.
 5. Write migrations before relying on new database structures.
@@ -1058,7 +901,7 @@ Treat this attached LifeStack Project Documentation as the authoritative product
 10. Do not generate the entire application in one huge step. Stop at a working milestone and summarize what is complete, what is tested, and what comes next.
 11. Ask a concise clarification only when a decision is genuinely blocking; otherwise use the defaults in this specification and state assumptions.
 12. Keep the code understandable for a developer learning full-stack development.
-13. Follow the revised milestone order in Section 15: complete notes/coding practice and basic job-tracker CRUD before implementing the advanced custom-template engine.
+13. Follow the milestone order in Section 15: complete roadmaps, notes, coding practice, and job-tracker pipeline.
 14. For Milestone 1, list the files you propose to create or change before creating them. Do not begin feature implementation until the ER diagram, schema/migration plan, endpoint outline, and acceptance checklist have been presented and reviewed.
 15. Do not silently omit, reinterpret, or replace requirements from this document. If a requirement is technically infeasible or unsafe, explain the issue and propose a specific alternative for approval.
 
@@ -1067,7 +910,7 @@ Start with **Milestone 1: project foundation and architecture**. Do not build al
 
 Deliver:
 - Proposed repository and package structure using the LifeStack name
-- ER diagram that includes users, workspaces, learning entities, applications, template versions, and application custom-field storage
+- ER diagram that includes users, workspaces, learning entities, and job applications
 - First Flyway migration plan and initial schema constraints/indexes
 - Endpoint list for the foundation milestone
 - Spring Boot dependencies and configuration outline

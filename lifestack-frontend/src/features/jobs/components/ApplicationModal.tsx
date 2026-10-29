@@ -1,17 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { X, Briefcase, Building, Globe, MapPin, DollarSign, Calendar, AlertCircle, Sliders } from 'lucide-react';
+import { X, Briefcase, Building, Globe, MapPin, DollarSign, Calendar, AlertCircle } from 'lucide-react';
 import {
-  api,
   JobApplication,
   ApplicationStatus,
   WorkMode,
-  Template,
-  TemplateDetail,
   CreateApplicationPayload,
   UpdateApplicationPayload,
 } from '../../../lib/api';
-import { DynamicFormRenderer } from '../../templates/components/DynamicFormRenderer';
 
 export interface ApplicationModalProps {
   isOpen: boolean;
@@ -61,40 +56,8 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
   const [followUpAt, setFollowUpAt] = useState('');
   const [notes, setNotes] = useState('');
 
-  // Milestone 7 custom fields state
-  const [templateVersionId, setTemplateVersionId] = useState<string>('');
-  const [customFields, setCustomFields] = useState<Record<string, any>>({});
-
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-
-  // Query published Job Application templates
-  const { data: jobTemplates = [] } = useQuery<Template[]>({
-    queryKey: ['templates', workspaceId, 'JOB_APPLICATION'],
-    queryFn: async () => {
-      const res = await api.templates.list(workspaceId, 'JOB_APPLICATION');
-      return res.data;
-    },
-    enabled: isOpen && !!workspaceId,
-  });
-
-  const selectedTemplate = jobTemplates.find((t) => t.publishedVersionId === templateVersionId);
-
-  // Query details for active template to get field definitions
-  const { data: activeTemplateDetail } = useQuery<TemplateDetail | null>({
-    queryKey: ['template-detail', selectedTemplate?.id],
-    queryFn: async () => {
-      if (!selectedTemplate) return null;
-      const res = await api.templates.get(selectedTemplate.id);
-      return res.data;
-    },
-    enabled: !!selectedTemplate,
-  });
-
-  const activeFieldDefinitions =
-    activeTemplateDetail?.versions.find((v) => v.id === templateVersionId)?.fieldDefinitions ||
-    (initialData as any)?.fieldDefinitions ||
-    [];
 
   useEffect(() => {
     if (initialData) {
@@ -109,8 +72,6 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
       setSalary(initialData.salary || '');
       setFollowUpAt(initialData.followUpAt || '');
       setNotes(initialData.notes || '');
-      setTemplateVersionId(initialData.templateVersionId || '');
-      setCustomFields(initialData.customFields || {});
     } else {
       setCompanyName('');
       setJobTitle('');
@@ -123,8 +84,6 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
       setSalary('');
       setFollowUpAt('');
       setNotes('');
-      setTemplateVersionId('');
-      setCustomFields({});
     }
     setErrorMessage('');
   }, [initialData, isOpen]);
@@ -146,7 +105,6 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
     setErrorMessage('');
 
     try {
-      const hasCustomFields = Object.keys(customFields).length > 0;
       if (isEditing) {
         const payload: UpdateApplicationPayload = {
           companyName: companyName.trim(),
@@ -160,8 +118,6 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
           salary: salary.trim() || undefined,
           followUpAt: followUpAt || undefined,
           notes: notes.trim() || undefined,
-          templateVersionId: templateVersionId || undefined,
-          customFields: hasCustomFields ? customFields : undefined,
         };
         await onSubmit(payload);
       } else {
@@ -178,8 +134,6 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
           salary: salary.trim() || undefined,
           followUpAt: followUpAt || undefined,
           notes: notes.trim() || undefined,
-          templateVersionId: templateVersionId || undefined,
-          customFields: hasCustomFields ? customFields : undefined,
         };
         await onSubmit(payload);
       }
@@ -206,7 +160,7 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
               </h2>
               <p className="text-xs text-slate-500">
                 {isEditing
-                  ? 'Update role details, recruitment stage, and custom attributes.'
+                  ? 'Update role details and recruitment stage.'
                   : 'Log a new opportunity in your career pipeline.'}
               </p>
             </div>
@@ -389,51 +343,6 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
               className="mt-1 w-full rounded-lg border border-slate-300 py-2 px-3 text-sm text-slate-800 placeholder-slate-400 focus:border-brand-500 focus:outline-hidden focus:ring-1 focus:ring-brand-500"
             />
           </div>
-
-          {/* Custom Template & Fields Section (Milestone 7) */}
-          {jobTemplates.length > 0 && (
-            <div className="rounded-xl border border-purple-200/80 bg-purple-50/30 p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
-                  <Sliders className="h-4 w-4 text-purple-600" />
-                  <span>Custom Template Attributes</span>
-                </div>
-                <span className="text-[10px] text-purple-700 font-semibold bg-purple-100 px-2 py-0.5 rounded-full">
-                  Milestone 7
-                </span>
-              </div>
-
-              <select
-                value={templateVersionId}
-                onChange={(e) => {
-                  setTemplateVersionId(e.target.value);
-                  setCustomFields({});
-                }}
-                className="w-full rounded-lg border border-slate-300 bg-white py-1.5 px-3 text-xs text-slate-800 focus:outline-hidden focus:ring-1 focus:ring-brand-500"
-              >
-                <option value="">No custom template (standard fields only)</option>
-                {jobTemplates.map((t) => (
-                  <option
-                    key={t.id}
-                    value={t.publishedVersionId || ''}
-                    disabled={!t.publishedVersionId}
-                  >
-                    {t.name} {t.publishedVersionNumber ? `(v${t.publishedVersionNumber} published)` : '(No published version)'}
-                  </option>
-                ))}
-              </select>
-
-              {templateVersionId && activeFieldDefinitions.length > 0 && (
-                <div className="mt-3 border-t border-purple-200/60 pt-3">
-                  <DynamicFormRenderer
-                    fieldDefinitions={activeFieldDefinitions}
-                    values={customFields}
-                    onChange={(k, v) => setCustomFields((prev) => ({ ...prev, [k]: v }))}
-                  />
-                </div>
-              )}
-            </div>
-          )}
 
           {/* Footer Actions */}
           <div className="flex items-center justify-end gap-3 border-t border-slate-100 pt-4">
