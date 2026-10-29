@@ -28,6 +28,7 @@ import { api } from '@/lib/api';
 import { useAuth } from '@/features/auth/AuthContext';
 import { useWorkspace } from '@/features/workspace/WorkspaceContext';
 import { WorkspaceModal } from '@/features/workspace/WorkspaceModal';
+import { PwaInstallPrompt, PwaInstallHeaderButton } from '@/components/pwa/PwaInstallPrompt';
 
 const navigationItems = [
   { name: 'Dashboard', to: '/', icon: LayoutDashboard },
@@ -312,6 +313,7 @@ export function AppLayout() {
           </div>
 
           <div className="flex items-center gap-3">
+            <PwaInstallHeaderButton />
             {user && (
               <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 py-1 pl-2.5 pr-3 text-xs">
                 <UserIcon className="h-3.5 w-3.5 text-brand-600" />
@@ -342,6 +344,9 @@ export function AppLayout() {
           }
         }}
       />
+
+      {/* PWA Install Floating Prompt */}
+      <PwaInstallPrompt />
     </div>
   );
 }
