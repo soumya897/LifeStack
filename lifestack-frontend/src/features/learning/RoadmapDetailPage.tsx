@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowLeft,
@@ -14,10 +14,448 @@ import {
   ChevronDown,
   Layers,
   BookOpen,
+  Code2,
+  FileText,
+  Link2,
+  ExternalLink,
 } from 'lucide-react';
-import { api, Roadmap, Topic, TopicStatus, RoadmapStatus } from '../../lib/api';
+import {
+  api,
+  Roadmap,
+  Topic,
+  TopicStatus,
+  RoadmapStatus,
+  Problem,
+  ProblemDifficulty,
+  Note,
+  Resource,
+} from '../../lib/api';
 import { RoadmapModal, RoadmapFormValues } from './RoadmapModal';
 import { TopicModal, TopicFormValues } from './TopicModal';
+import { ProblemModal } from '../coding/ProblemModal';
+import { NoteModal } from '../notes/NoteModal';
+import { ResourceModal } from '../notes/ResourceModal';
+
+const getTopicStatusBadge = (status: TopicStatus) => {
+  switch (status) {
+    case 'NOT_STARTED':
+      return {
+        label: 'Not Started',
+        className: 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200',
+      };
+    case 'IN_PROGRESS':
+      return {
+        label: 'In Progress',
+        className: 'bg-sky-50 text-sky-700 border-sky-200 hover:bg-sky-100',
+      };
+    case 'COMPLETED':
+      return {
+        label: 'Completed',
+        className: 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100',
+      };
+    case 'REVISING':
+      return {
+        label: 'Revising',
+        className: 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100',
+      };
+  }
+};
+
+interface TopicRowItemProps {
+  topic: Topic;
+  index: number;
+  totalTopics: number;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+  isReordering: boolean;
+  onEdit: () => void;
+  onDelete: () => void;
+  onStatusChange: (status: TopicStatus) => void;
+  workspaceId: string;
+}
+
+function TopicRowItem({
+  topic,
+  index,
+  totalTopics,
+  onMoveUp,
+  onMoveDown,
+  isReordering,
+  onEdit,
+  onDelete,
+  onStatusChange,
+  workspaceId,
+}: TopicRowItemProps) {
+  const queryClient = useQueryClient();
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isProblemModalOpen, setIsProblemModalOpen] = useState(false);
+  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
+  const [isResourceModalOpen, setIsResourceModalOpen] = useState(false);
+
+  // Attached problems
+  const { data: problems = [] } = useQuery<Problem[]>({
+    queryKey: ['topic-problems', topic.id],
+    queryFn: async () => {
+      const res = await api.problems.listByTopic(topic.id);
+      return res.data;
+    },
+  });
+
+  // Attached notes
+  const { data: notes = [] } = useQuery<Note[]>({
+    queryKey: ['topic-notes', topic.id],
+    queryFn: async () => {
+      const res = await api.notes.listByTopic(topic.id);
+      return res.data;
+    },
+  });
+
+  // Attached resources
+  const { data: resources = [] } = useQuery<Resource[]>({
+    queryKey: ['topic-resources', topic.id],
+    queryFn: async () => {
+      const res = await api.resources.listByTopic(topic.id);
+      return res.data;
+    },
+  });
+
+  const statusBadge = getTopicStatusBadge(topic.status);
+
+  const handleSaveProblem = async (values: {
+    title: string;
+    statement?: string;
+    difficulty: ProblemDifficulty;
+    platformUrl?: string;
+  }) => {
+    await api.problems.create(topic.id, {
+      title: values.title,
+      statement: values.statement,
+      difficulty: values.difficulty,
+      platformUrl: values.platformUrl,
+    });
+    queryClient.invalidateQueries({ queryKey: ['topic-problems', topic.id] });
+    queryClient.invalidateQueries({ queryKey: ['problems'] });
+    setIsProblemModalOpen(false);
+  };
+
+  const handleSaveNote = async (values: {
+    title: string;
+    content?: string;
+    tags?: string;
+  }) => {
+    await api.notes.create({
+      workspaceId,
+      title: values.title,
+      content: values.content,
+      tags: values.tags,
+      topicId: topic.id,
+    });
+    queryClient.invalidateQueries({ queryKey: ['topic-notes', topic.id] });
+    queryClient.invalidateQueries({ queryKey: ['notes'] });
+    setIsNoteModalOpen(false);
+  };
+
+  const handleSaveResource = async (values: {
+    name: string;
+    url: string;
+    resourceType?: string;
+  }) => {
+    await api.resources.create({
+      workspaceId,
+      name: values.name,
+      url: values.url,
+      resourceType: values.resourceType,
+      topicId: topic.id,
+    });
+    queryClient.invalidateQueries({ queryKey: ['topic-resources', topic.id] });
+    queryClient.invalidateQueries({ queryKey: ['resources'] });
+    setIsResourceModalOpen(false);
+  };
+
+  return (
+    <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm hover:border-slate-300 transition-all overflow-hidden">
+      <div className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        {/* Left: Reorder Controls + Index + Title */}
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <div className="flex flex-col gap-0.5">
+            <button
+              onClick={onMoveUp}
+              disabled={index === 0 || isReordering}
+              className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-20 hover:bg-slate-100 rounded transition-colors"
+              title="Move Up"
+            >
+              <ChevronUp className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={onMoveDown}
+              disabled={index === totalTopics - 1 || isReordering}
+              className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-20 hover:bg-slate-100 rounded transition-colors"
+              title="Move Down"
+            >
+              <ChevronDown className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-600 shrink-0">
+            {index + 1}
+          </div>
+
+          {/* Title and details */}
+          <div className="space-y-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h4 className="text-sm font-bold text-slate-900 truncate">{topic.title}</h4>
+              {topic.weight > 1 && (
+                <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                  Weight: {topic.weight}
+                </span>
+              )}
+              {/* Practice & Notes Accordion Toggle */}
+              <button
+                type="button"
+                onClick={() => setIsExpanded(!isExpanded)}
+                className={`inline-flex items-center gap-1.5 px-2 py-0.5 text-[11px] font-semibold rounded-md border transition-colors ${
+                  isExpanded || problems.length > 0 || notes.length > 0
+                    ? 'bg-slate-100 text-slate-700 border-slate-300'
+                    : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                <Code2 className="w-3 h-3 text-emerald-600" />
+                <span>{problems.length}</span>
+                <span className="text-slate-300">•</span>
+                <FileText className="w-3 h-3 text-indigo-600" />
+                <span>{notes.length}</span>
+                <ChevronDown
+                  className={`w-3 h-3 ml-0.5 transition-transform duration-200 ${
+                    isExpanded ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+            </div>
+            {topic.description && (
+              <p className="text-xs text-slate-500 line-clamp-1">{topic.description}</p>
+            )}
+          </div>
+        </div>
+
+        {/* Right: Status selector + Deadline + Actions */}
+        <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-100 shrink-0">
+          {topic.targetDate && (
+            <span className="hidden md:inline-flex items-center gap-1 text-[11px] text-slate-500">
+              <Clock className="w-3 h-3 text-slate-400" />
+              {topic.isOverdue ? (
+                <span className="text-rose-600 font-semibold">Overdue</span>
+              ) : topic.daysRemaining != null ? (
+                `${topic.daysRemaining}d left`
+              ) : (
+                topic.targetDate
+              )}
+            </span>
+          )}
+
+          <select
+            value={topic.status}
+            onChange={(e) => onStatusChange(e.target.value as TopicStatus)}
+            className={`text-xs font-bold rounded-lg px-2.5 py-1 border transition-all cursor-pointer ${statusBadge.className}`}
+          >
+            <option value="NOT_STARTED">Not Started</option>
+            <option value="IN_PROGRESS">In Progress</option>
+            <option value="COMPLETED">Completed</option>
+            <option value="REVISING">Revising</option>
+          </select>
+
+          <div className="flex items-center gap-1">
+            <button
+              onClick={onEdit}
+              className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+              title="Edit Topic"
+            >
+              <Edit2 className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={onDelete}
+              className="p-1.5 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+              title="Delete Topic"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Expanded Topic Details: Attached Problems & Notes */}
+      {isExpanded && (
+        <div className="border-t border-slate-100 bg-slate-50/70 p-4 space-y-4">
+          {/* Coding Problems Sub-section */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <h5 className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+                <Code2 className="w-3.5 h-3.5 text-emerald-600" />
+                Coding Problems ({problems.length})
+              </h5>
+              <button
+                type="button"
+                onClick={() => setIsProblemModalOpen(true)}
+                className="text-[11px] font-semibold text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded-md border border-emerald-200 transition-colors flex items-center gap-1"
+              >
+                <Plus className="w-3 h-3" />
+                Add Problem
+              </button>
+            </div>
+
+            {problems.length === 0 ? (
+              <p className="text-xs text-slate-400 italic py-1">
+                No coding problems linked to this topic yet.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {problems.map((prob) => {
+                  const diffColor =
+                    prob.difficulty === 'EASY'
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                      : prob.difficulty === 'MEDIUM'
+                      ? 'bg-amber-50 text-amber-700 border-amber-200'
+                      : 'bg-rose-50 text-rose-700 border-rose-200';
+
+                  const statusColor =
+                    prob.status === 'SOLVED' || prob.status === 'MASTERED'
+                      ? 'bg-emerald-100 text-emerald-800'
+                      : prob.status === 'ATTEMPTED'
+                      ? 'bg-amber-100 text-amber-800'
+                      : 'bg-slate-200 text-slate-700';
+
+                  return (
+                    <Link
+                      key={prob.id}
+                      to={`/coding/${prob.id}`}
+                      className="bg-white p-2.5 rounded-lg border border-slate-200 hover:border-emerald-300 hover:shadow-xs transition-all flex items-center justify-between gap-2 group"
+                    >
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          <span
+                            className={`px-1.5 py-0.2 text-[10px] font-bold rounded border ${diffColor}`}
+                          >
+                            {prob.difficulty}
+                          </span>
+                          <span className={`px-1.5 py-0.2 text-[10px] font-semibold rounded ${statusColor}`}>
+                            {prob.status}
+                          </span>
+                        </div>
+                        <p className="text-xs font-bold text-slate-800 group-hover:text-emerald-600 truncate">
+                          {prob.title}
+                        </p>
+                      </div>
+                      <span className="text-[11px] font-mono text-slate-400 shrink-0">
+                        {prob.solutionsCount} sol
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Notes & Resources Sub-section */}
+          <div className="space-y-2 pt-2 border-t border-slate-200/60">
+            <div className="flex items-center justify-between">
+              <h5 className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-indigo-600" />
+                Notes ({notes.length}) & Resources ({resources.length})
+              </h5>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setIsNoteModalOpen(true)}
+                  className="text-[11px] font-semibold text-indigo-700 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-2 py-1 rounded-md border border-indigo-200 transition-colors flex items-center gap-1"
+                >
+                  <Plus className="w-3 h-3" />
+                  Note
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsResourceModalOpen(true)}
+                  className="text-[11px] font-semibold text-sky-700 hover:text-sky-800 bg-sky-50 hover:bg-sky-100 px-2 py-1 rounded-md border border-sky-200 transition-colors flex items-center gap-1"
+                >
+                  <Plus className="w-3 h-3" />
+                  Resource
+                </button>
+              </div>
+            </div>
+
+            {notes.length === 0 && resources.length === 0 ? (
+              <p className="text-xs text-slate-400 italic py-1">
+                No study notes or external resources attached yet.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {notes.map((note) => (
+                  <div
+                    key={note.id}
+                    className="bg-white p-2.5 rounded-lg border border-slate-200 flex items-center justify-between gap-2"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-slate-800 truncate">{note.title}</p>
+                      {note.tags && (
+                        <p className="text-[10px] text-indigo-600 truncate mt-0.5">#{note.tags}</p>
+                      )}
+                    </div>
+                    <Link
+                      to="/notes"
+                      className="text-[11px] font-semibold text-indigo-600 hover:underline shrink-0"
+                    >
+                      View Note →
+                    </Link>
+                  </div>
+                ))}
+
+                {resources.map((res) => (
+                  <div
+                    key={res.id}
+                    className="bg-white p-2.5 rounded-lg border border-slate-200 flex items-center justify-between gap-2"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Link2 className="w-3.5 h-3.5 text-sky-500 shrink-0" />
+                      <p className="text-xs font-bold text-slate-800 truncate">{res.name}</p>
+                    </div>
+                    <a
+                      href={res.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[11px] font-semibold text-sky-600 hover:underline flex items-center gap-1 shrink-0"
+                    >
+                      Link
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Attach Modals */}
+      <ProblemModal
+        isOpen={isProblemModalOpen}
+        onClose={() => setIsProblemModalOpen(false)}
+        onSubmit={handleSaveProblem}
+        fixedTopicId={topic.id}
+      />
+
+      <NoteModal
+        isOpen={isNoteModalOpen}
+        onClose={() => setIsNoteModalOpen(false)}
+        onSubmit={handleSaveNote}
+        fixedTopicId={topic.id}
+      />
+
+      <ResourceModal
+        isOpen={isResourceModalOpen}
+        onClose={() => setIsResourceModalOpen(false)}
+        onSubmit={handleSaveResource}
+      />
+    </div>
+  );
+}
 
 export function RoadmapDetailPage() {
   const { roadmapId } = useParams<{ roadmapId: string }>();
@@ -174,31 +612,6 @@ export function RoadmapDetailPage() {
 
     const newOrderIds = newTopics.map((t) => t.id);
     reorderTopicsMutation.mutate(newOrderIds);
-  };
-
-  const getTopicStatusBadge = (status: TopicStatus) => {
-    switch (status) {
-      case 'NOT_STARTED':
-        return {
-          label: 'Not Started',
-          className: 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200',
-        };
-      case 'IN_PROGRESS':
-        return {
-          label: 'In Progress',
-          className: 'bg-sky-50 text-sky-700 border-sky-200 hover:bg-sky-100',
-        };
-      case 'COMPLETED':
-        return {
-          label: 'Completed',
-          className: 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100',
-        };
-      case 'REVISING':
-        return {
-          label: 'Revising',
-          className: 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100',
-        };
-    }
   };
 
   if (isLoading) {
@@ -411,108 +824,23 @@ export function RoadmapDetailPage() {
         {/* Topics List */}
         {topics.length > 0 && (
           <div className="space-y-3">
-            {topics.map((topic, index) => {
-              const statusBadge = getTopicStatusBadge(topic.status);
-              return (
-                <div
-                  key={topic.id}
-                  className="bg-white rounded-xl border border-slate-200/80 shadow-sm hover:border-slate-300 transition-all p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group"
-                >
-                  {/* Left: Reorder Controls + Index */}
-                  <div className="flex items-center gap-3">
-                    <div className="flex flex-col gap-0.5">
-                      <button
-                        onClick={() => moveTopic(index, 'UP')}
-                        disabled={index === 0 || reorderTopicsMutation.isPending}
-                        className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-20 hover:bg-slate-100 rounded transition-colors"
-                        title="Move Up"
-                      >
-                        <ChevronUp className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => moveTopic(index, 'DOWN')}
-                        disabled={index === topics.length - 1 || reorderTopicsMutation.isPending}
-                        className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-20 hover:bg-slate-100 rounded transition-colors"
-                        title="Move Down"
-                      >
-                        <ChevronDown className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-
-                    <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-600">
-                      {index + 1}
-                    </div>
-
-                    {/* Title and details */}
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h4 className="text-sm font-bold text-slate-900">{topic.title}</h4>
-                        {topic.weight > 1 && (
-                          <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
-                            Weight: {topic.weight}
-                          </span>
-                        )}
-                      </div>
-                      {topic.description && (
-                        <p className="text-xs text-slate-500 line-clamp-1">{topic.description}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Right: Status selector + Deadline + Actions */}
-                  <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-100">
-                    {/* Deadline badge */}
-                    {topic.targetDate && (
-                      <span className="hidden md:inline-flex items-center gap-1 text-[11px] text-slate-500">
-                        <Clock className="w-3 h-3 text-slate-400" />
-                        {topic.isOverdue ? (
-                          <span className="text-rose-600 font-semibold">Overdue</span>
-                        ) : topic.daysRemaining != null ? (
-                          `${topic.daysRemaining}d left`
-                        ) : (
-                          topic.targetDate
-                        )}
-                      </span>
-                    )}
-
-                    {/* Status Toggle / Select */}
-                    <select
-                      value={topic.status}
-                      onChange={(e) =>
-                        updateTopicStatusMutation.mutate({
-                          id: topic.id,
-                          status: e.target.value as TopicStatus,
-                        })
-                      }
-                      className={`text-xs font-bold rounded-lg px-2.5 py-1 border transition-all cursor-pointer ${statusBadge.className}`}
-                    >
-                      <option value="NOT_STARTED">Not Started</option>
-                      <option value="IN_PROGRESS">In Progress</option>
-                      <option value="COMPLETED">Completed</option>
-                      <option value="REVISING">Revising</option>
-                    </select>
-
-                    {/* Action buttons */}
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => setEditingTopic(topic)}
-                        className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
-                        title="Edit Topic"
-                      >
-                        <Edit2 className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => setDeletingTopicId(topic.id)}
-                        className="p-1.5 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                        title="Delete Topic"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {topics.map((topic, index) => (
+              <TopicRowItem
+                key={topic.id}
+                topic={topic}
+                index={index}
+                totalTopics={topics.length}
+                onMoveUp={() => moveTopic(index, 'UP')}
+                onMoveDown={() => moveTopic(index, 'DOWN')}
+                isReordering={reorderTopicsMutation.isPending}
+                onEdit={() => setEditingTopic(topic)}
+                onDelete={() => setDeletingTopicId(topic.id)}
+                onStatusChange={(status) =>
+                  updateTopicStatusMutation.mutate({ id: topic.id, status })
+                }
+                workspaceId={roadmap.workspaceId}
+              />
+            ))}
           </div>
         )}
       </div>

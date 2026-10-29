@@ -26,6 +26,9 @@ export type RoadmapStatus = 'ACTIVE' | 'COMPLETED' | 'ARCHIVED';
 export type ProgressMode = 'TOPIC' | 'TASK' | 'WEIGHTED';
 export type TopicStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'REVISING';
 
+export type ProblemDifficulty = 'EASY' | 'MEDIUM' | 'HARD';
+export type ProblemStatus = 'UNSOLVED' | 'ATTEMPTED' | 'SOLVED' | 'MASTERED';
+
 export interface Topic {
   id: string;
   roadmapId: string;
@@ -64,6 +67,55 @@ export interface Roadmap {
   topics?: Topic[];
 }
 
+export interface ProblemSolution {
+  id: string;
+  problemId: string;
+  language: string;
+  code: string;
+  approach?: string;
+  timeComplexity?: string;
+  spaceComplexity?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Problem {
+  id: string;
+  topicId: string;
+  topicTitle: string;
+  roadmapId: string;
+  roadmapName: string;
+  title: string;
+  statement?: string;
+  difficulty: ProblemDifficulty;
+  platformUrl?: string;
+  status: ProblemStatus;
+  solutionsCount: number;
+  solutions?: ProblemSolution[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Note {
+  id: string;
+  workspaceId: string;
+  ownerId: string;
+  title: string;
+  content?: string;
+  tags?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Resource {
+  id: string;
+  workspaceId: string;
+  name: string;
+  resourceType: string;
+  url: string;
+  createdAt: string;
+}
+
 export interface CreateRoadmapPayload {
   workspaceId: string;
   name: string;
@@ -98,6 +150,60 @@ export interface UpdateTopicPayload {
   startDate?: string;
   targetDate?: string;
   sortOrder?: number;
+}
+
+export interface CreateProblemPayload {
+  title: string;
+  statement?: string;
+  difficulty?: ProblemDifficulty;
+  platformUrl?: string;
+}
+
+export interface UpdateProblemPayload {
+  title?: string;
+  statement?: string;
+  difficulty?: ProblemDifficulty;
+  platformUrl?: string;
+  status?: ProblemStatus;
+}
+
+export interface CreateSolutionPayload {
+  language: string;
+  code: string;
+  approach?: string;
+  timeComplexity?: string;
+  spaceComplexity?: string;
+}
+
+export interface UpdateSolutionPayload {
+  language?: string;
+  code?: string;
+  approach?: string;
+  timeComplexity?: string;
+  spaceComplexity?: string;
+}
+
+export interface CreateNotePayload {
+  workspaceId: string;
+  title: string;
+  content?: string;
+  tags?: string;
+  topicId?: string;
+  problemId?: string;
+}
+
+export interface UpdateNotePayload {
+  title?: string;
+  content?: string;
+  tags?: string;
+}
+
+export interface CreateResourcePayload {
+  workspaceId: string;
+  name: string;
+  resourceType?: string;
+  url: string;
+  topicId?: string;
 }
 
 export interface HealthCheckData {
@@ -318,6 +424,111 @@ export const api = {
       }),
     delete: (id: string) =>
       apiClient<void>(`/topics/${id}`, {
+        method: 'DELETE',
+      }),
+  },
+  problems: {
+    list: (workspaceId: string, status?: ProblemStatus, difficulty?: ProblemDifficulty) => {
+      const params = new URLSearchParams({ workspaceId });
+      if (status) params.append('status', status);
+      if (difficulty) params.append('difficulty', difficulty);
+      return apiClient<Problem[]>(`/problems?${params.toString()}`);
+    },
+    listByTopic: (topicId: string) => apiClient<Problem[]>(`/topics/${topicId}/problems`),
+    get: (id: string) => apiClient<Problem>(`/problems/${id}`),
+    create: (topicId: string, payload: CreateProblemPayload) =>
+      apiClient<Problem>(`/topics/${topicId}/problems`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+    update: (id: string, payload: UpdateProblemPayload) =>
+      apiClient<Problem>(`/problems/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(payload),
+      }),
+    delete: (id: string) =>
+      apiClient<void>(`/problems/${id}`, {
+        method: 'DELETE',
+      }),
+  },
+  solutions: {
+    list: (problemId: string) => apiClient<ProblemSolution[]>(`/problems/${problemId}/solutions`),
+    create: (problemId: string, payload: CreateSolutionPayload) =>
+      apiClient<ProblemSolution>(`/problems/${problemId}/solutions`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+    update: (id: string, payload: UpdateSolutionPayload) =>
+      apiClient<ProblemSolution>(`/solutions/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(payload),
+      }),
+    delete: (id: string) =>
+      apiClient<void>(`/solutions/${id}`, {
+        method: 'DELETE',
+      }),
+  },
+  notes: {
+    list: (workspaceId: string, search?: string) => {
+      const params = new URLSearchParams({ workspaceId });
+      if (search) params.append('search', search);
+      return apiClient<Note[]>(`/notes?${params.toString()}`);
+    },
+    listByTopic: (topicId: string) => apiClient<Note[]>(`/topics/${topicId}/notes`),
+    listByProblem: (problemId: string) => apiClient<Note[]>(`/problems/${problemId}/notes`),
+    get: (id: string) => apiClient<Note>(`/notes/${id}`),
+    create: (payload: CreateNotePayload) =>
+      apiClient<Note>('/notes', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+    update: (id: string, payload: UpdateNotePayload) =>
+      apiClient<Note>(`/notes/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(payload),
+      }),
+    delete: (id: string) =>
+      apiClient<void>(`/notes/${id}`, {
+        method: 'DELETE',
+      }),
+    linkTopic: (topicId: string, noteId: string) =>
+      apiClient<void>(`/topics/${topicId}/notes/${noteId}`, {
+        method: 'POST',
+      }),
+    unlinkTopic: (topicId: string, noteId: string) =>
+      apiClient<void>(`/topics/${topicId}/notes/${noteId}`, {
+        method: 'DELETE',
+      }),
+    linkProblem: (problemId: string, noteId: string) =>
+      apiClient<void>(`/problems/${problemId}/notes/${noteId}`, {
+        method: 'POST',
+      }),
+    unlinkProblem: (problemId: string, noteId: string) =>
+      apiClient<void>(`/problems/${problemId}/notes/${noteId}`, {
+        method: 'DELETE',
+      }),
+  },
+  resources: {
+    list: (workspaceId: string) => {
+      const params = new URLSearchParams({ workspaceId });
+      return apiClient<Resource[]>(`/resources?${params.toString()}`);
+    },
+    listByTopic: (topicId: string) => apiClient<Resource[]>(`/topics/${topicId}/resources`),
+    create: (payload: CreateResourcePayload) =>
+      apiClient<Resource>('/resources', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+    delete: (id: string) =>
+      apiClient<void>(`/resources/${id}`, {
+        method: 'DELETE',
+      }),
+    linkTopic: (topicId: string, resourceId: string) =>
+      apiClient<void>(`/topics/${topicId}/resources/${resourceId}`, {
+        method: 'POST',
+      }),
+    unlinkTopic: (topicId: string, resourceId: string) =>
+      apiClient<void>(`/topics/${topicId}/resources/${resourceId}`, {
         method: 'DELETE',
       }),
   },

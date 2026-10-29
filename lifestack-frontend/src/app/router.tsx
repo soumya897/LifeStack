@@ -6,6 +6,9 @@ import { RegisterPage } from '@/features/auth/RegisterPage';
 import { ProtectedRoute } from '@/features/auth/ProtectedRoute';
 import { RoadmapListPage } from '@/features/learning/RoadmapListPage';
 import { RoadmapDetailPage } from '@/features/learning/RoadmapDetailPage';
+import { CodingPracticePage } from '@/features/coding/CodingPracticePage';
+import { ProblemDetailPage } from '@/features/coding/ProblemDetailPage';
+import { NotesPage } from '@/features/notes/NotesPage';
 
 function FeaturePlaceholder({ title, description }: { title: string; description: string }) {
   return (
@@ -61,21 +64,15 @@ export const router = createBrowserRouter([
           },
           {
             path: 'coding',
-            element: (
-              <FeaturePlaceholder
-                title="Coding Practice"
-                description="Record problems, code solutions, difficulty ratings, time/space complexity, and attempt histories."
-              />
-            ),
+            element: <CodingPracticePage />,
+          },
+          {
+            path: 'coding/:problemId',
+            element: <ProblemDetailPage />,
           },
           {
             path: 'notes',
-            element: (
-              <FeaturePlaceholder
-                title="Notes & Resources"
-                description="Maintain standalone and attached knowledge notes with tags and markdown support."
-              />
-            ),
+            element: <NotesPage />,
           },
           {
             path: 'jobs',
