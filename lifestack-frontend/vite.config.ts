@@ -10,7 +10,8 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       devOptions: {
-        enabled: true
+        enabled: true,
+        suppressWarnings: true
       },
       includeAssets: ['favicon.svg', 'icons/*.png'],
       manifest: {
