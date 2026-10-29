@@ -34,3 +34,4 @@ public class AnalyticsController {
         return ResponseEntity.ok(ApiResponse.success(summary));
     }
 }
+

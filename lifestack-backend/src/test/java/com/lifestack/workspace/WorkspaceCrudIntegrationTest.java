@@ -107,3 +107,4 @@ class WorkspaceCrudIntegrationTest {
                 .andExpect(jsonPath("$.data", hasSize(1)));
     }
 }
+

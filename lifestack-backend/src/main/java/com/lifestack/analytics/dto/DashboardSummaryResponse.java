@@ -178,3 +178,4 @@ public class DashboardSummaryResponse {
     public List<ActivityItem> getRecentActivity() { return recentActivity; }
     public void setRecentActivity(List<ActivityItem> recentActivity) { this.recentActivity = recentActivity; }
 }
+

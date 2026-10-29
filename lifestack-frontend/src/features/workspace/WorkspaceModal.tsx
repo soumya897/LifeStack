@@ -135,3 +135,4 @@ export function WorkspaceModal({ isOpen, onClose, workspaceToEdit, onSave }: Wor
     </div>
   );
 }
+
