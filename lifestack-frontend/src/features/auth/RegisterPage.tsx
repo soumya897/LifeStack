@@ -4,7 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
-import { Layers, Loader2, AlertCircle, ArrowRight, Lock, Mail, User, Globe } from 'lucide-react';
+import { Loader2, AlertCircle, ArrowRight, Lock, Mail, User, Globe } from 'lucide-react';
+import { LifeStackLogo } from '@/components/LifeStackLogo';
 
 const registerSchema = z
   .object({
@@ -81,8 +82,8 @@ export function RegisterPage() {
       <div className="w-full max-w-md space-y-8 rounded-2xl border border-slate-200/80 bg-white p-8 shadow-sm">
         {/* Brand Header */}
         <div className="text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-600 text-white shadow-sm">
-            <Layers className="h-6 w-6" />
+          <div className="mx-auto flex justify-center">
+            <LifeStackLogo className="h-14 w-14 drop-shadow-md" withBackground={true} />
           </div>
           <h2 className="mt-4 text-2xl font-bold tracking-tight text-slate-900">
             Create your LifeStack account

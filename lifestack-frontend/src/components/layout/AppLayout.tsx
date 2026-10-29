@@ -9,7 +9,6 @@ import {
   Briefcase,
   BarChart3,
   Settings,
-  Layers,
   Menu,
   X,
   Server,
@@ -29,6 +28,7 @@ import { useAuth } from '@/features/auth/AuthContext';
 import { useWorkspace } from '@/features/workspace/WorkspaceContext';
 import { WorkspaceModal } from '@/features/workspace/WorkspaceModal';
 import { PwaInstallPrompt, PwaInstallHeaderButton, PwaInstallSidebarItem } from '@/components/pwa/PwaInstallPrompt';
+import { LifeStackLogo } from '@/components/LifeStackLogo';
 import { useScheduleAlerts } from '@/features/schedule/useScheduleAlerts';
 import { ScheduleAlertModal } from '@/features/schedule/ScheduleAlertModal';
 
@@ -130,9 +130,7 @@ export function AppLayout() {
         {/* Brand Header */}
         <div className="flex h-16 items-center justify-between border-b border-slate-100 px-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white shadow-xs">
-              <Layers className="h-5 w-5" />
-            </div>
+            <LifeStackLogo className="h-9 w-9 shrink-0 drop-shadow-xs" withBackground={true} />
             <div>
               <span className="text-lg font-bold tracking-tight text-slate-900">LifeStack</span>
               <span className="block text-[10px] font-semibold tracking-wider text-brand-600 uppercase">

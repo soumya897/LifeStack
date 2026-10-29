@@ -18,7 +18,7 @@ export default defineConfig({
         name: 'LifeStack — Personal Productivity Platform',
         short_name: 'LifeStack',
         description: 'Organize learning roadmaps, coding practice, notes, and job tracker in one place.',
-        theme_color: '#0f172a',
+        theme_color: '#082f49',
         background_color: '#ffffff',
         display: 'standalone',
         start_url: '/',

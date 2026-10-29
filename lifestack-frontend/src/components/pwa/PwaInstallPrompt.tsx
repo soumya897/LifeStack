@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Download, X, Monitor, CheckCircle, Sparkles, HelpCircle, ArrowUpRight } from 'lucide-react';
+import { LifeStackLogo } from '@/components/LifeStackLogo';
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
@@ -170,9 +171,7 @@ export function PwaInstallPrompt() {
         <div className="fixed bottom-6 right-6 z-50 w-96 max-w-[calc(100vw-2rem)] rounded-2xl bg-slate-900/95 text-white p-5 shadow-2xl backdrop-blur-md border border-slate-700/80 animate-in fade-in slide-in-from-bottom-6 duration-300">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-brand-600 to-sky-400 text-white shadow-md shadow-brand-500/30">
-                <Download className="h-5 w-5" />
-              </div>
+              <LifeStackLogo className="h-11 w-11 shrink-0 rounded-2xl shadow-md shadow-brand-500/20" withBackground={true} />
               <div>
                 <div className="flex items-center gap-2">
                   <h4 className="text-sm font-bold tracking-tight text-white">Install LifeStack App</h4>

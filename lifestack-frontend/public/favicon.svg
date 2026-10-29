@@ -1,7 +1,53 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <rect width="32" height="32" rx="8" fill="#0f172a"/>
-  <path d="M8 10C8 8.89543 8.89543 8 10 8H22C23.1046 8 24 8.89543 24 10V12C24 13.1046 23.1046 14 22 14H10C8.89543 14 8 13.1046 8 12V10Z" fill="#38bdf8"/>
-  <path d="M8 15C8 13.8954 8.89543 13 10 13H22C23.1046 13 24 13.8954 24 15V17C24 18.1046 23.1046 19 22 19H10C8.89543 19 8 18.1046 8 17V15Z" fill="#0284c7"/>
-  <path d="M8 20C8 18.8954 8.89543 18 10 18H22C23.1046 18 24 18.8954 24 20V22C24 23.1046 23.1046 24 22 24H10C8.89543 24 8 23.1046 8 22V20Z" fill="#0369a1"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="ls-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0c4a6e" />
+      <stop offset="100%" stop-color="#082f49" />
+    </linearGradient>
 
+    <linearGradient id="ls-l-frame" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="60%" stop-color="#0284c7" />
+      <stop offset="100%" stop-color="#0369a1" />
+    </linearGradient>
+
+    <linearGradient id="ls-bar-1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+
+    <linearGradient id="ls-bar-2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#7dd3fc" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+
+    <linearGradient id="ls-bar-3" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#bae6fd" />
+      <stop offset="100%" stop-color="#38bdf8" />
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#ls-bg)" />
+
+  <g id="lifestack-mark">
+    <path
+      d="M 128 120 
+         C 128 115.58 131.58 112 136 112 
+         L 180 112 
+         C 184.42 112 188 115.58 188 120 
+         L 188 340 
+         L 376 340 
+         C 380.42 340 384 343.58 384 348 
+         L 384 392 
+         C 384 396.42 380.42 400 376 400 
+         L 144 400 
+         C 135.16 400 128 392.84 128 384 
+         Z"
+      fill="url(#ls-l-frame)"
+    />
+
+    <rect x="208" y="278" width="46" height="46" rx="10" fill="url(#ls-bar-1)" />
+    <rect x="268" y="202" width="46" height="122" rx="10" fill="url(#ls-bar-2)" />
+    <rect x="328" y="120" width="46" height="204" rx="10" fill="url(#ls-bar-3)" />
+  </g>
+</svg>
