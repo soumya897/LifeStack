@@ -44,7 +44,7 @@ CREATE DATABASE lifestack_db;
 Navigate to `lifestack-backend`:
 ```bash
 cd lifestack-backend
-# Copy environment variables template
+# Copy environment variables example
 cp .env.example .env
 # Run tests and start application
 mvn clean test

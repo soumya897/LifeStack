@@ -40,7 +40,6 @@ The core product idea is to combine:
 - AI-generated study plans or notes
 - Automatic job scraping or job application submission
 - Team collaboration and shared workspaces
-- Public sharing or marketplace for templates
 - Separate native Android/iOS applications
 - Full offline editing and conflict-resolution synchronization
 - Arbitrary user-defined code, SQL, or formula execution
@@ -759,18 +758,12 @@ Do not build every module before testing the architecture. Start with this end-t
 7. Calculate topic/roadmap progress.
 8. Show updated progress on the dashboard.
 
-This proves authentication, ownership, database relationships, CRUD operations, progress logic, and dashboard integration before the rest of the product is built. Treat this as the first end-to-end release gate. Do not build the versioned dynamic template engine before the roadmap/topic flow, notes and coding practice, and basic job-tracker CRUD are working.
+This proves authentication, ownership, database relationships, CRUD operations, progress logic, and dashboard integration before the rest of the product is built. Treat this as the first end-to-end release gate.
 
 ## 17. Risks and Design Decisions
 
-### Risk: customization becomes too complex
-Mitigation: launch with a limited set of field types and no user-defined code or formulas. Keep core entities strongly typed.
-
 ### Risk: progress calculations become inconsistent
 Mitigation: implement one backend calculation service and document how empty, archived, skipped, and weighted items behave.
-
-### Risk: template changes corrupt old data
-Mitigation: version published templates and define explicit migration behavior.
 
 ### Risk: cross-user data exposure
 Mitigation: enforce ownership checks in every service and test with multiple accounts.
@@ -789,12 +782,12 @@ After the MVP is stable, consider:
 - Revision scheduling / spaced repetition
 - Global full-text search improvements
 - Export to CSV, Markdown, and PDF
-- Import/export of roadmaps and templates
+- Import/export of roadmaps and notes
 - More flexible status workflows
 - AI-assisted note organization and search
 - Optional browser/mobile notifications
 - Carefully designed offline access and synchronization
-- Shared templates or collaboration, with explicit permissions
+- Team collaboration and shared workspaces, with explicit permissions
 
 ## 19. Product Definition of Done
 
@@ -802,7 +795,6 @@ The MVP is ready when:
 - The core user journeys work end to end.
 - Database migrations can build a clean database.
 - Authentication and ownership tests pass.
-- Custom fields validate correctly on the backend.
 - Progress and reporting semantics are documented and tested.
 - PWA installation works in supported browsers.
 - The application is responsive and has useful loading/error/empty states.
