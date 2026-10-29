@@ -131,8 +131,8 @@ export const AnalyticsPage: React.FC = () => {
         s.totalApplications,
         s.interviewCount,
         s.offerCount,
-        s.interviewRate.toFixed(1),
-        s.offerRate.toFixed(1),
+        (s.interviewRate ?? 0).toFixed(1),
+        (s.offerRate ?? 0).toFixed(1),
       ]) || [];
 
     const summarySection = [
@@ -169,7 +169,7 @@ export const AnalyticsPage: React.FC = () => {
       roadmapData.roadmaps.map((r) => [
         `"${r.name}"`,
         r.status,
-        r.progressPercentage.toFixed(1),
+        ((r.progressPercentage ?? r.progress ?? 0)).toFixed(1),
         r.completedTopics,
         r.totalTopics,
         r.targetDate || 'None',
@@ -184,9 +184,9 @@ export const AnalyticsPage: React.FC = () => {
       ['Completed Roadmaps', roadmapData.completedRoadmaps],
       ['Total Topics', roadmapData.totalTopics],
       ['Completed Topics', roadmapData.completedTopics],
-      ['Topic Completion Rate', `${roadmapData.topicCompletionRate.toFixed(1)}%`],
+      ['Topic Completion Rate', `${(roadmapData.topicCompletionRate ?? roadmapData.overallTopicCompletionPercentage ?? 0).toFixed(1)}%`],
       ['Total Problems Solved', `${roadmapData.solvedProblems} / ${roadmapData.totalProblems}`],
-      ['Problem Solve Rate', `${roadmapData.problemSolveRate.toFixed(1)}%`],
+      ['Problem Solve Rate', `${(roadmapData.problemSolveRate ?? (roadmapData.totalProblems ? Math.round(((roadmapData.solvedProblems || 0) * 100.0) / roadmapData.totalProblems * 10.0) / 10.0 : 0)).toFixed(1)}%`],
     ];
 
     const csvContent =
@@ -210,8 +210,13 @@ export const AnalyticsPage: React.FC = () => {
   const activeInterviews = jobSummaryData?.activeInterviews ?? 0;
   const followUpsDue = jobSummaryData?.followUpsDue ?? 0;
 
-  const topicCompletionRate = roadmapData?.topicCompletionRate ?? 0;
-  const problemSolveRate = roadmapData?.problemSolveRate ?? 0;
+  const topicCompletionRate =
+    roadmapData?.topicCompletionRate ?? roadmapData?.overallTopicCompletionPercentage ?? 0;
+  const problemSolveRate =
+    roadmapData?.problemSolveRate ??
+    (roadmapData?.totalProblems && roadmapData.totalProblems > 0
+      ? Math.round(((roadmapData.solvedProblems || 0) * 100.0) / roadmapData.totalProblems * 10.0) / 10.0
+      : 0);
   const totalRoadmaps = roadmapData?.totalRoadmaps ?? 0;
 
   // Max value for monthly velocity bar chart scaling
@@ -575,7 +580,7 @@ export const AnalyticsPage: React.FC = () => {
                     </div>
                     <div className="mt-2 flex items-center justify-between text-xs">
                       <span className="text-slate-400">Offer Rate</span>
-                      <span className="font-bold text-slate-800">{s.offerRate.toFixed(1)}%</span>
+                      <span className="font-bold text-slate-800">{(s.offerRate ?? 0).toFixed(1)}%</span>
                     </div>
                   </div>
                 ))
@@ -631,10 +636,10 @@ export const AnalyticsPage: React.FC = () => {
                           {s.offerCount}
                         </td>
                         <td className="py-3 px-5 text-right text-slate-600">
-                          {s.interviewRate.toFixed(1)}%
+                          {(s.interviewRate ?? 0).toFixed(1)}%
                         </td>
                         <td className="py-3 px-5 text-right font-bold text-emerald-600">
-                          {s.offerRate.toFixed(1)}%
+                          {(s.offerRate ?? 0).toFixed(1)}%
                         </td>
                       </tr>
                     ))
@@ -755,7 +760,7 @@ export const AnalyticsPage: React.FC = () => {
                 {roadmapData?.completedTopics ?? 0} / {roadmapData?.totalTopics ?? 0}
               </div>
               <div className="mt-2 text-xs text-slate-500">
-                {(roadmapData?.topicCompletionRate ?? 0).toFixed(1)}% topic syllabus mastered
+                {topicCompletionRate.toFixed(1)}% topic syllabus mastered
               </div>
             </div>
 
@@ -768,7 +773,7 @@ export const AnalyticsPage: React.FC = () => {
                 {roadmapData?.solvedProblems ?? 0} / {roadmapData?.totalProblems ?? 0}
               </div>
               <div className="mt-2 text-xs text-slate-500">
-                {(roadmapData?.problemSolveRate ?? 0).toFixed(1)}% problem solve rate
+                {problemSolveRate.toFixed(1)}% problem solve rate
               </div>
             </div>
           </div>
@@ -820,12 +825,12 @@ export const AnalyticsPage: React.FC = () => {
                     <div className="flex items-center gap-4 sm:w-48">
                       <div className="w-full">
                         <div className="flex items-center justify-between text-xs font-semibold text-slate-700 mb-1">
-                          <span>{r.progressPercentage.toFixed(0)}%</span>
+                          <span>{((r.progressPercentage ?? r.progress ?? 0)).toFixed(0)}%</span>
                         </div>
                         <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200">
                           <div
                             className="h-full rounded-full bg-brand-600 transition-all"
-                            style={{ width: `${r.progressPercentage}%` }}
+                            style={{ width: `${r.progressPercentage ?? r.progress ?? 0}%` }}
                           />
                         </div>
                       </div>

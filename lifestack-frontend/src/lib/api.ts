@@ -316,7 +316,8 @@ export interface RoadmapProgressAnalyticsItem {
   id: string;
   name: string;
   status: string;
-  progressPercentage: number;
+  progress?: number;
+  progressPercentage?: number;
   totalTopics: number;
   completedTopics: number;
   targetDate?: string;
@@ -329,10 +330,11 @@ export interface RoadmapAnalytics {
   completedRoadmaps: number;
   totalTopics: number;
   completedTopics: number;
-  topicCompletionRate: number;
+  topicCompletionRate?: number;
+  overallTopicCompletionPercentage?: number;
   totalProblems: number;
   solvedProblems: number;
-  problemSolveRate: number;
+  problemSolveRate?: number;
   problemsByDifficulty: Record<string, number>;
   problemsByStatus: Record<string, number>;
   totalNotes: number;

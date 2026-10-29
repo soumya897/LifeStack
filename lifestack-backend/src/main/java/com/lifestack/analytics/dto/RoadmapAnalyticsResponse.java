@@ -78,6 +78,10 @@ public class RoadmapAnalyticsResponse {
             return progress;
         }
 
+        public double getProgressPercentage() {
+            return progress;
+        }
+
         public void setProgress(double progress) {
             this.progress = progress;
         }
@@ -157,6 +161,14 @@ public class RoadmapAnalyticsResponse {
 
     public double getOverallTopicCompletionPercentage() {
         return overallTopicCompletionPercentage;
+    }
+
+    public double getTopicCompletionRate() {
+        return overallTopicCompletionPercentage;
+    }
+
+    public double getProblemSolveRate() {
+        return totalProblems == 0 ? 0.0 : Math.round(((double) solvedProblems * 100.0) / totalProblems * 10.0) / 10.0;
     }
 
     public void setOverallTopicCompletionPercentage(double overallTopicCompletionPercentage) {

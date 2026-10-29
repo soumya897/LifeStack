@@ -321,7 +321,7 @@ export function RoadmapListPage() {
                 {/* Progress Bar */}
                 <div className="space-y-1.5 pt-1">
                   <div className="flex items-center justify-between text-xs font-semibold">
-                    <span className="text-slate-700">{roadmap.progressPercentage.toFixed(1)}%</span>
+                    <span className="text-slate-700">{(roadmap.progressPercentage ?? 0).toFixed(1)}%</span>
                     <span className="text-slate-400 font-medium">
                       {roadmap.completedTopics} / {roadmap.totalTopics} topics
                     </span>

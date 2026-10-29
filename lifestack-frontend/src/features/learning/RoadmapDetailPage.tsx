@@ -740,7 +740,7 @@ export function RoadmapDetailPage() {
               Curriculum Progress
             </div>
             <div className="text-3xl font-black text-slate-900">
-              {roadmap.progressPercentage.toFixed(1)}%
+              {(roadmap.progressPercentage ?? 0).toFixed(1)}%
             </div>
             <div className="text-xs font-medium text-slate-600">
               {roadmap.completedTopics} of {roadmap.totalTopics} topics completed
