@@ -56,3 +56,4 @@ public class CreateTemplateRequest {
         this.recordType = recordType;
     }
 }
+

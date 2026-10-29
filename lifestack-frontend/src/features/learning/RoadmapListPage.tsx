@@ -171,7 +171,7 @@ export function RoadmapListPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
-            <Compass className="w-7 h-7 text-primary-600" />
+            <Compass className="w-7 h-7 text-brand-600" />
             Learning Roadmaps
           </h1>
           <p className="text-sm text-slate-500 mt-1">
@@ -187,7 +187,7 @@ export function RoadmapListPage() {
             setEditingRoadmap(null);
             setIsModalOpen(true);
           }}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold rounded-xl shadow-sm hover:shadow transition-all"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white text-sm font-semibold rounded-xl shadow-xs transition-all cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           Create Roadmap
@@ -223,7 +223,7 @@ export function RoadmapListPage() {
       {/* Empty state */}
       {!isLoading && roadmaps.length === 0 && (
         <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center max-w-lg mx-auto shadow-sm">
-          <div className="w-14 h-14 bg-primary-50 text-primary-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <div className="w-14 h-14 bg-brand-50 text-brand-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <BookOpen className="w-7 h-7" />
           </div>
           <h3 className="text-base font-bold text-slate-900 mb-1">No roadmaps found</h3>
@@ -237,7 +237,7 @@ export function RoadmapListPage() {
               setEditingRoadmap(null);
               setIsModalOpen(true);
             }}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white text-sm font-semibold rounded-xl shadow-xs transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             Create First Roadmap
@@ -269,7 +269,7 @@ export function RoadmapListPage() {
                     </div>
                     <h3
                       onClick={() => navigate(`/learning/${roadmap.id}`)}
-                      className="text-base font-bold text-slate-900 group-hover:text-primary-600 transition-colors cursor-pointer line-clamp-1"
+                      className="text-base font-bold text-slate-900 group-hover:text-brand-600 transition-colors cursor-pointer line-clamp-1"
                     >
                       {roadmap.name}
                     </h3>
@@ -332,8 +332,8 @@ export function RoadmapListPage() {
                         roadmap.progressPercentage >= 100
                           ? 'bg-emerald-500'
                           : roadmap.progressPercentage > 50
-                          ? 'bg-primary-600'
-                          : 'bg-primary-500'
+                          ? 'bg-brand-600'
+                          : 'bg-brand-500'
                       }`}
                       style={{ width: `${Math.min(100, roadmap.progressPercentage)}%` }}
                     />
@@ -352,7 +352,7 @@ export function RoadmapListPage() {
               {/* Card Footer CTA */}
               <div
                 onClick={() => navigate(`/learning/${roadmap.id}`)}
-                className="px-5 py-3 bg-slate-50 hover:bg-primary-50/60 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-700 hover:text-primary-700 transition-colors cursor-pointer"
+                className="px-5 py-3 bg-slate-50 hover:bg-brand-50/60 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-700 hover:text-brand-700 transition-colors cursor-pointer"
               >
                 <span>Curriculum & Topics</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />

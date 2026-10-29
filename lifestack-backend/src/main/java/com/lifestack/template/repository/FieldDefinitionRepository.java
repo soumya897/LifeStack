@@ -15,3 +15,4 @@ public interface FieldDefinitionRepository extends JpaRepository<FieldDefinition
 
     Optional<FieldDefinition> findByVersionIdAndFieldKey(UUID versionId, String fieldKey);
 }
+

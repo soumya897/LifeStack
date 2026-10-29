@@ -83,3 +83,4 @@ CREATE INDEX IF NOT EXISTS idx_field_values_record_id ON field_values(record_id)
 ALTER TABLE applications ADD COLUMN IF NOT EXISTS template_version_id UUID REFERENCES template_versions(id) ON DELETE SET NULL;
 ALTER TABLE applications ADD COLUMN IF NOT EXISTS custom_fields JSONB NOT NULL DEFAULT '{}'::jsonb;
 CREATE INDEX IF NOT EXISTS idx_applications_template_version ON applications(template_version_id);
+

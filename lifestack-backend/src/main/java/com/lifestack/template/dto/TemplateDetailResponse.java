@@ -126,3 +126,4 @@ public class TemplateDetailResponse {
         this.updatedAt = updatedAt;
     }
 }
+

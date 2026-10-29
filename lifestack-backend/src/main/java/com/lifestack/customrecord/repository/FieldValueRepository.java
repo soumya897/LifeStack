@@ -15,3 +15,4 @@ public interface FieldValueRepository extends JpaRepository<FieldValue, UUID> {
 
     Optional<FieldValue> findByRecordIdAndFieldDefinitionId(UUID recordId, UUID fieldDefinitionId);
 }
+

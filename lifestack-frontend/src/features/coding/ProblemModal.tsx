@@ -1,15 +1,38 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { X, Loader2 } from 'lucide-react';
+import { X, Loader2, AlertCircle, Code2 } from 'lucide-react';
 import { Problem, ProblemDifficulty, ProblemStatus } from '../../lib/api';
 
 const problemSchema = z.object({
-  title: z.string().min(2, 'Title must be at least 2 characters').max(255, 'Title must be under 255 characters'),
+  title: z
+    .string()
+    .trim()
+    .min(2, 'Title must be at least 2 characters')
+    .max(255, 'Title must be under 255 characters'),
   statement: z.string().optional(),
   difficulty: z.enum(['EASY', 'MEDIUM', 'HARD']),
-  platformUrl: z.string().url('Must be a valid URL').or(z.literal('')).optional(),
+  platformUrl: z
+    .string()
+    .optional()
+    .refine(
+      (val) => {
+        if (!val || val.trim() === '') return true;
+        try {
+          const trimmed = val.trim();
+          const toTest =
+            trimmed.startsWith('http://') || trimmed.startsWith('https://')
+              ? trimmed
+              : `https://${trimmed}`;
+          new URL(toTest);
+          return true;
+        } catch {
+          return false;
+        }
+      },
+      { message: 'Please enter a valid URL (e.g. https://leetcode.com/problems/...)' }
+    ),
   status: z.enum(['UNSOLVED', 'ATTEMPTED', 'SOLVED', 'MASTERED']).optional(),
   topicId: z.string().optional(),
 });
@@ -40,6 +63,7 @@ export function ProblemModal({
   topicOptions = [],
 }: ProblemModalProps) {
   const isEditing = !!initialData;
+  const [serverError, setServerError] = useState<string | null>(null);
 
   const {
     register,
@@ -60,6 +84,7 @@ export function ProblemModal({
 
   useEffect(() => {
     if (isOpen) {
+      setServerError(null);
       if (initialData) {
         reset({
           title: initialData.title,
@@ -84,18 +109,43 @@ export function ProblemModal({
 
   if (!isOpen) return null;
 
+  const handleFormSubmit = async (values: ProblemFormValues) => {
+    try {
+      setServerError(null);
+      let formattedUrl = values.platformUrl?.trim();
+      if (formattedUrl && !formattedUrl.startsWith('http://') && !formattedUrl.startsWith('https://')) {
+        formattedUrl = `https://${formattedUrl}`;
+      }
+      await onSubmit({
+        ...values,
+        title: values.title.trim(),
+        statement: values.statement?.trim() || undefined,
+        platformUrl: formattedUrl || undefined,
+      });
+      onClose();
+    } catch (err: any) {
+      console.error('Problem submission error:', err);
+      setServerError(err.message || 'Failed to save coding problem. Please try again.');
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-slate-50/50">
-          <div>
-            <h3 className="text-lg font-bold text-slate-900">
-              {isEditing ? 'Edit Coding Problem' : 'Record Coding Problem'}
-            </h3>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Track algorithm challenge statements, difficulty, and links.
-            </p>
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <Code2 className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-slate-900">
+                {isEditing ? 'Edit Coding Problem' : 'Record Coding Problem'}
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Track algorithm challenge statements, difficulty, and links.
+              </p>
+            </div>
           </div>
           <button
             onClick={onClose}
@@ -105,8 +155,15 @@ export function ProblemModal({
           </button>
         </div>
 
+        {serverError && (
+          <div className="mx-6 mt-4 flex items-center gap-2 p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs font-semibold text-rose-700">
+            <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
+            <span>{serverError}</span>
+          </div>
+        )}
+
         {/* Form Body */}
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4 overflow-y-auto">
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="p-6 space-y-4 overflow-y-auto">
           {/* Topic Selector (if not fixed) */}
           {!fixedTopicId && topicOptions.length > 0 && !isEditing && (
             <div>
@@ -115,7 +172,7 @@ export function ProblemModal({
               </label>
               <select
                 {...register('topicId')}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm bg-white focus:outline-hidden focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
               >
                 {topicOptions.map((t) => (
                   <option key={t.id} value={t.id}>
@@ -135,10 +192,10 @@ export function ProblemModal({
               {...register('title')}
               type="text"
               placeholder="e.g. Two Sum, LRU Cache, Merge Intervals"
-              className={`w-full px-3.5 py-2.5 rounded-xl border text-sm transition-all focus:outline-none focus:ring-2 ${
+              className={`w-full px-3.5 py-2.5 rounded-xl border text-sm transition-all focus:outline-hidden focus:ring-2 ${
                 errors.title
                   ? 'border-rose-300 focus:ring-rose-500/20 focus:border-rose-500'
-                  : 'border-slate-200 focus:ring-primary-500/20 focus:border-primary-500'
+                  : 'border-slate-200 focus:ring-brand-500/20 focus:border-brand-500'
               }`}
             />
             {errors.title && (
@@ -154,7 +211,7 @@ export function ProblemModal({
               </label>
               <select
                 {...register('difficulty')}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm bg-white focus:outline-hidden focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
               >
                 <option value="EASY">Easy</option>
                 <option value="MEDIUM">Medium</option>
@@ -170,7 +227,7 @@ export function ProblemModal({
                 </label>
                 <select
                   {...register('status')}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm bg-white focus:outline-hidden focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
                 >
                   <option value="UNSOLVED">Unsolved</option>
                   <option value="ATTEMPTED">Attempted</option>
@@ -189,8 +246,8 @@ export function ProblemModal({
             <input
               {...register('platformUrl')}
               type="text"
-              placeholder="https://leetcode.com/problems/..."
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+              placeholder="e.g. leetcode.com/problems/two-sum or https://..."
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-hidden focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
             />
             {errors.platformUrl && (
               <p className="text-xs text-rose-500 mt-1">{errors.platformUrl.message}</p>
@@ -206,7 +263,7 @@ export function ProblemModal({
               {...register('statement')}
               rows={4}
               placeholder="Given an array of integers nums and an integer target..."
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 font-mono text-xs"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm transition-all focus:outline-hidden focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 font-mono text-xs"
             />
           </div>
 
@@ -216,17 +273,17 @@ export function ProblemModal({
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors"
+              className="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-primary-600 hover:bg-primary-700 rounded-xl shadow-sm hover:shadow transition-all disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 active:scale-95 rounded-xl shadow-xs transition-all disabled:opacity-50 cursor-pointer"
             >
               {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
-              {isEditing ? 'Save Changes' : 'Create Problem'}
+              <span>{isEditing ? 'Save Changes' : 'Create Problem'}</span>
             </button>
           </div>
         </form>

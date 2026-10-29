@@ -129,3 +129,4 @@ public class CustomRecord {
         this.updatedAt = updatedAt;
     }
 }
+

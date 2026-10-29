@@ -17,3 +17,4 @@ public interface CustomRecordRepository extends JpaRepository<CustomRecord, UUID
 
     Optional<CustomRecord> findByIdAndOwnerId(UUID id, UUID ownerId);
 }
+

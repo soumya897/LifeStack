@@ -11,3 +11,4 @@ public enum FieldType {
     SINGLE_SELECT,
     MULTI_SELECT
 }
+

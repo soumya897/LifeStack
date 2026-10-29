@@ -20,3 +20,4 @@ public interface TemplateRepository extends JpaRepository<Template, UUID> {
 
     Optional<Template> findByIdAndWorkspaceId(UUID id, UUID workspaceId);
 }
+

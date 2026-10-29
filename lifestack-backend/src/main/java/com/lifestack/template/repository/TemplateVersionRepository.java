@@ -18,3 +18,4 @@ public interface TemplateVersionRepository extends JpaRepository<TemplateVersion
 
     Optional<TemplateVersion> findFirstByTemplateIdAndStatusOrderByVersionNumberDesc(UUID templateId, TemplateVersionStatus status);
 }
+

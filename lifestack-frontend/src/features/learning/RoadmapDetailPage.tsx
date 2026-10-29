@@ -135,6 +135,8 @@ function TopicRowItem({
     });
     queryClient.invalidateQueries({ queryKey: ['topic-problems', topic.id] });
     queryClient.invalidateQueries({ queryKey: ['problems'] });
+    queryClient.invalidateQueries({ queryKey: ['roadmap-topics'] });
+    queryClient.invalidateQueries({ queryKey: ['roadmap-detail'] });
     setIsProblemModalOpen(false);
   };
 
@@ -201,9 +203,14 @@ function TopicRowItem({
           </div>
 
           {/* Title and details */}
-          <div className="space-y-1 min-w-0">
+          <div
+            className="space-y-1 min-w-0 cursor-pointer select-none"
+            onClick={() => setIsExpanded(!isExpanded)}
+          >
             <div className="flex items-center gap-2 flex-wrap">
-              <h4 className="text-sm font-bold text-slate-900 truncate">{topic.title}</h4>
+              <h4 className="text-sm font-bold text-slate-900 hover:text-brand-600 transition-colors truncate">
+                {topic.title}
+              </h4>
               {topic.weight > 1 && (
                 <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
                   Weight: {topic.weight}
@@ -212,8 +219,11 @@ function TopicRowItem({
               {/* Practice & Notes Accordion Toggle */}
               <button
                 type="button"
-                onClick={() => setIsExpanded(!isExpanded)}
-                className={`inline-flex items-center gap-1.5 px-2 py-0.5 text-[11px] font-semibold rounded-md border transition-colors ${
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsExpanded(!isExpanded);
+                }}
+                className={`inline-flex items-center gap-1.5 px-2 py-0.5 text-[11px] font-semibold rounded-md border transition-colors cursor-pointer ${
                   isExpanded || problems.length > 0 || notes.length > 0
                     ? 'bg-slate-100 text-slate-700 border-slate-300'
                     : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'
@@ -746,8 +756,8 @@ export function RoadmapDetailPage() {
                 roadmap.progressPercentage >= 100
                   ? 'bg-emerald-500'
                   : roadmap.progressPercentage > 50
-                  ? 'bg-primary-600'
-                  : 'bg-primary-500'
+                  ? 'bg-brand-600'
+                  : 'bg-brand-500'
               }`}
               style={{ width: `${Math.min(100, roadmap.progressPercentage)}%` }}
             />
@@ -793,7 +803,7 @@ export function RoadmapDetailPage() {
               setEditingTopic(null);
               setIsTopicModalOpen(true);
             }}
-            className="inline-flex items-center gap-2 px-3.5 py-2 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded-xl shadow-sm hover:shadow transition-all"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             Add Topic
@@ -813,7 +823,7 @@ export function RoadmapDetailPage() {
                 setEditingTopic(null);
                 setIsTopicModalOpen(true);
               }}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded-xl shadow-sm transition-all"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
               Add First Topic
