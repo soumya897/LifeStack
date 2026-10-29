@@ -105,7 +105,7 @@ export function ProblemModal({
         });
       }
     }
-  }, [isOpen, initialData, fixedTopicId, topicOptions, reset]);
+  }, [isOpen, initialData, reset]);
 
   if (!isOpen) return null;
 
@@ -191,6 +191,7 @@ export function ProblemModal({
             <input
               {...register('title')}
               type="text"
+              autoFocus
               placeholder="e.g. Two Sum, LRU Cache, Merge Intervals"
               className={`w-full px-3.5 py-2.5 rounded-xl border text-sm transition-all focus:outline-hidden focus:ring-2 ${
                 errors.title
