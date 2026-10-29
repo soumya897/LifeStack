@@ -157,31 +157,36 @@ export const JobTrackerPage: React.FC = () => {
       {/* Page Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <div className="flex items-center gap-2.5">
-            <div className="rounded-xl bg-purple-50 p-2.5 text-purple-600">
-              <Briefcase className="h-6 w-6" />
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-700 text-white shadow-xs">
+              <Briefcase className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">
-                Job Tracker & Pipeline
-              </h1>
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 md:text-3xl">
+                  Job Tracker & Pipeline
+                </h1>
+                <span className="rounded-full bg-purple-50 px-2.5 py-0.5 text-xs font-semibold text-purple-700 border border-purple-200">
+                  Kanban & Table
+                </span>
+              </div>
               <p className="mt-0.5 text-xs text-slate-500">
-                Manage your job search pipeline, interview rounds, and status transitions.
+                Track job applications, recruitment stages, interviews, and status transitions.
               </p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <button
             onClick={() => {
               refetchStats();
               refetchApps();
             }}
             disabled={isFetching}
-            className="inline-flex items-center gap-2 rounded-lg bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-2xs border border-slate-200 hover:bg-slate-50 disabled:opacity-50 transition-colors"
+            className="inline-flex items-center gap-2 rounded-xl bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-2xs border border-slate-200/80 hover:bg-slate-50 disabled:opacity-50 transition-colors"
           >
-            <RefreshCw className={`h-3.5 w-3.5 ${isFetching ? 'animate-spin text-brand-600' : ''}`} />
+            <RefreshCw className={`h-3.5 w-3.5 ${isFetching ? 'animate-spin text-brand-600' : 'text-slate-400'}`} />
             Refresh
           </button>
           <button
@@ -189,7 +194,7 @@ export const JobTrackerPage: React.FC = () => {
               setEditingApplication(null);
               setIsModalOpen(true);
             }}
-            className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-brand-700 transition-colors"
+            className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-brand-700 transition-colors"
           >
             <Plus className="h-4 w-4" />
             Track Application
@@ -201,7 +206,7 @@ export const JobTrackerPage: React.FC = () => {
       <JobStatsBar stats={statsData} isLoading={isLoadingStats} />
 
       {/* Filter and View Toolbar */}
-      <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-3.5 shadow-2xs sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-2xs sm:flex-row sm:items-center sm:justify-between">
         {/* Search & Filter */}
         <div className="flex flex-1 flex-col gap-2.5 sm:flex-row sm:items-center">
           <div className="relative flex-1 max-w-sm">
@@ -211,7 +216,7 @@ export const JobTrackerPage: React.FC = () => {
               placeholder="Search company, title, or location..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 py-1.5 pl-9 pr-3 text-xs text-slate-800 placeholder-slate-400 focus:border-brand-500 focus:outline-hidden focus:ring-1 focus:ring-brand-500"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-1.5 pl-9 pr-3 text-xs text-slate-800 placeholder-slate-400 focus:border-brand-500 focus:bg-white focus:outline-hidden focus:ring-1 focus:ring-brand-500 transition-all"
             />
           </div>
 
@@ -220,7 +225,7 @@ export const JobTrackerPage: React.FC = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="rounded-lg border border-slate-200 bg-white py-1.5 px-2.5 text-xs font-medium text-slate-700 focus:border-brand-500 focus:outline-hidden"
+              className="rounded-xl border border-slate-200 bg-white py-1.5 px-3 text-xs font-semibold text-slate-700 hover:border-slate-300 focus:border-brand-500 focus:outline-hidden transition-colors"
             >
               {STATUS_FILTER_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -232,27 +237,27 @@ export const JobTrackerPage: React.FC = () => {
         </div>
 
         {/* View Switcher Toggle */}
-        <div className="flex items-center rounded-lg border border-slate-200 p-0.5 bg-slate-50 self-start sm:self-auto">
+        <div className="flex items-center rounded-xl border border-slate-200/80 p-1 bg-slate-100/70 self-start sm:self-auto">
           <button
             onClick={() => setViewMode('kanban')}
-            className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
+            className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all ${
               viewMode === 'kanban'
                 ? 'bg-white text-slate-900 shadow-2xs'
                 : 'text-slate-500 hover:text-slate-800'
             }`}
           >
-            <LayoutGrid className="h-3.5 w-3.5" />
+            <LayoutGrid className="h-3.5 w-3.5 text-brand-600" />
             Board
           </button>
           <button
             onClick={() => setViewMode('table')}
-            className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
+            className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all ${
               viewMode === 'table'
                 ? 'bg-white text-slate-900 shadow-2xs'
                 : 'text-slate-500 hover:text-slate-800'
             }`}
           >
-            <List className="h-3.5 w-3.5" />
+            <List className="h-3.5 w-3.5 text-indigo-600" />
             Table
           </button>
         </div>
