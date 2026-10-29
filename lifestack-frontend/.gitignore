@@ -1,0 +1,21 @@
+# LifeStack Frontend .gitignore
+node_modules/
+dist/
+dev-dist/
+*.log
+.vite/
+*.tsbuildinfo
+.pnp
+.pnp.js
+
+# Environment files
+.env
+.env.*
+*.env
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+.DS_Store
+

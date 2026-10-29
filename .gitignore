@@ -1,23 +1,49 @@
-# LifeStack Root .gitignore
+# ==============================================================================
+# LifeStack — Comprehensive Root .gitignore
+# Prevents any secrets, local environment configs, or build artifacts from Git
+# ==============================================================================
 
-# Environment files
+# Environment files & Secrets
 .env
-.env.local
+.env.*
 *.env
+!.env.example
+!.env.*.example
 
-# IDE and OS
+# Local Spring Boot profiles & sensitive local overrides
+**/src/main/resources/application-local.yml
+**/src/main/resources/application-local.yaml
+**/src/main/resources/application-dev.yml
+**/src/main/resources/application-dev.yaml
+**/src/main/resources/application-secret.yml
+**/src/main/resources/application-secret.yaml
+**/src/main/resources/application-*.local.yml
+**/src/main/resources/application-*.local.yaml
+
+# Security certificates & private keys
+*.pem
+*.key
+*.p12
+*.jks
+*.pfx
+*.crt
+
+# IDE and OS files
 .idea/
 .vscode/
 *.iml
 .DS_Store
 Thumbs.db
+ehthumbs.db
 
-# Backend Build artifacts
+# Backend Build & Runtime artifacts
 lifestack-backend/target/
 lifestack-backend/.mvn/wrapper/maven-wrapper.jar
 lifestack-backend/*.log
+target/
+*.log
 
-# Frontend Build artifacts
+# Frontend Build & Runtime artifacts
 lifestack-frontend/node_modules/
 lifestack-frontend/dist/
 lifestack-frontend/dev-dist/
@@ -26,4 +52,5 @@ lifestack-frontend/.pnp.js
 lifestack-frontend/*.log
 lifestack-frontend/.vite/
 *.tsbuildinfo
-
+node_modules/
+dist/

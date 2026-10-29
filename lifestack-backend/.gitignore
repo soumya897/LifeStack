@@ -1,0 +1,23 @@
+# LifeStack Backend .gitignore
+target/
+*.log
+.mvn/wrapper/maven-wrapper.jar
+.env
+.env.*
+*.env
+!.env.example
+
+# Local profiles
+src/main/resources/application-local.yml
+src/main/resources/application-local.yaml
+src/main/resources/application-dev.yml
+src/main/resources/application-dev.yaml
+src/main/resources/application-secret.yml
+src/main/resources/application-secret.yaml
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
