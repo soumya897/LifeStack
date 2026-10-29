@@ -1,17 +1,27 @@
 package com.lifestack.job.dto;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lifestack.job.entity.ApplicationStatus;
 import com.lifestack.job.entity.JobApplication;
 import com.lifestack.job.entity.WorkMode;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class ApplicationResponse {
 
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
     private UUID id;
     private UUID workspaceId;
+    private UUID templateVersionId;
+    private String templateName;
+    private Integer templateVersionNumber;
     private String companyName;
     private String jobTitle;
     private String source;
@@ -24,6 +34,7 @@ public class ApplicationResponse {
     private String notes;
     private LocalDate followUpAt;
     private int interviewRoundsCount;
+    private Map<String, Object> customFields = new HashMap<>();
     private Instant createdAt;
     private Instant updatedAt;
 
@@ -48,6 +59,23 @@ public class ApplicationResponse {
         dto.setInterviewRoundsCount(app.getInterviews() != null ? app.getInterviews().size() : 0);
         dto.setCreatedAt(app.getCreatedAt());
         dto.setUpdatedAt(app.getUpdatedAt());
+
+        if (app.getTemplateVersion() != null) {
+            dto.setTemplateVersionId(app.getTemplateVersion().getId());
+            dto.setTemplateVersionNumber(app.getTemplateVersion().getVersionNumber());
+            if (app.getTemplateVersion().getTemplate() != null) {
+                dto.setTemplateName(app.getTemplateVersion().getTemplate().getName());
+            }
+        }
+
+        if (app.getCustomFields() != null && !app.getCustomFields().trim().isEmpty()) {
+            try {
+                dto.setCustomFields(MAPPER.readValue(app.getCustomFields(), new TypeReference<Map<String, Object>>() {}));
+            } catch (Exception e) {
+                dto.setCustomFields(Collections.emptyMap());
+            }
+        }
+
         return dto;
     }
 
@@ -178,6 +206,38 @@ public class ApplicationResponse {
 
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public UUID getTemplateVersionId() {
+        return templateVersionId;
+    }
+
+    public void setTemplateVersionId(UUID templateVersionId) {
+        this.templateVersionId = templateVersionId;
+    }
+
+    public String getTemplateName() {
+        return templateName;
+    }
+
+    public void setTemplateName(String templateName) {
+        this.templateName = templateName;
+    }
+
+    public Integer getTemplateVersionNumber() {
+        return templateVersionNumber;
+    }
+
+    public void setTemplateVersionNumber(Integer templateVersionNumber) {
+        this.templateVersionNumber = templateVersionNumber;
+    }
+
+    public Map<String, Object> getCustomFields() {
+        return customFields;
+    }
+
+    public void setCustomFields(Map<String, Object> customFields) {
+        this.customFields = customFields != null ? customFields : new HashMap<>();
     }
 }
 

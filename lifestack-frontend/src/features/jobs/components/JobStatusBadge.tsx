@@ -163,3 +163,4 @@ export const EventTypeLabel: React.FC<{ type: InterviewEventType }> = ({ type })
   };
   return <span>{map[type] || type}</span>;
 };
+

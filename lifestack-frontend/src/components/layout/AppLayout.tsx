@@ -312,8 +312,8 @@ export function AppLayout() {
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="hidden sm:inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
-              Milestone 3 Active
+            <span className="hidden sm:inline-flex rounded-full bg-purple-50 text-purple-700 border border-purple-200 px-2.5 py-1 text-xs font-semibold">
+              Milestone 7: Custom Templates
             </span>
             {user && (
               <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 py-1 pl-2.5 pr-3 text-xs">

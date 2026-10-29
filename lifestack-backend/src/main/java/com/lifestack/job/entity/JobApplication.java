@@ -1,11 +1,14 @@
 package com.lifestack.job.entity;
 
 import com.lifestack.note.entity.Note;
+import com.lifestack.template.entity.TemplateVersion;
 import com.lifestack.user.entity.User;
 import com.lifestack.workspace.entity.Workspace;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -65,6 +68,14 @@ public class JobApplication {
 
     @Column(name = "follow_up_at")
     private LocalDate followUpAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "template_version_id")
+    private TemplateVersion templateVersion;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "custom_fields", columnDefinition = "jsonb", nullable = false)
+    private String customFields = "{}";
 
     @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("scheduledAt ASC")
@@ -262,6 +273,22 @@ public class JobApplication {
 
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public TemplateVersion getTemplateVersion() {
+        return templateVersion;
+    }
+
+    public void setTemplateVersion(TemplateVersion templateVersion) {
+        this.templateVersion = templateVersion;
+    }
+
+    public String getCustomFields() {
+        return customFields;
+    }
+
+    public void setCustomFields(String customFields) {
+        this.customFields = customFields != null ? customFields : "{}";
     }
 }
 

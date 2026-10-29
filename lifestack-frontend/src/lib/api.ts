@@ -244,9 +244,129 @@ export interface PageResponse<T> {
   empty: boolean;
 }
 
+export type TemplateRecordType = 'JOB_APPLICATION' | 'CUSTOM_RECORD';
+export type TemplateVersionStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+export type FieldType =
+  | 'TEXT'
+  | 'LONG_TEXT'
+  | 'NUMBER'
+  | 'DATE'
+  | 'URL'
+  | 'EMAIL'
+  | 'BOOLEAN'
+  | 'SINGLE_SELECT'
+  | 'MULTI_SELECT';
+
+export interface FieldConfig {
+  options?: string[];
+  min?: number;
+  max?: number;
+  placeholder?: string;
+}
+
+export interface FieldDefinition {
+  id: string;
+  versionId: string;
+  fieldKey: string;
+  label: string;
+  fieldType: FieldType;
+  required: boolean;
+  config: string;
+  sortOrder: number;
+  createdAt: string;
+}
+
+export interface TemplateVersion {
+  id: string;
+  templateId: string;
+  versionNumber: number;
+  status: TemplateVersionStatus;
+  publishedAt?: string;
+  fieldDefinitions: FieldDefinition[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Template {
+  id: string;
+  workspaceId: string;
+  name: string;
+  description?: string;
+  recordType: TemplateRecordType;
+  latestVersionNumber: number;
+  publishedVersionId?: string;
+  publishedVersionNumber?: number;
+  versionsCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TemplateDetail extends Template {
+  versions: TemplateVersion[];
+  activeVersion?: TemplateVersion;
+}
+
+export interface CustomRecord {
+  id: string;
+  workspaceId: string;
+  templateId?: string;
+  templateName?: string;
+  templateVersionId: string;
+  versionNumber: number;
+  title: string;
+  fieldValues: Record<string, any>;
+  fieldDefinitions: FieldDefinition[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateTemplatePayload {
+  workspaceId: string;
+  name: string;
+  description?: string;
+  recordType?: TemplateRecordType;
+}
+
+export interface UpdateTemplatePayload {
+  name?: string;
+  description?: string;
+}
+
+export interface CreateFieldDefinitionPayload {
+  fieldKey: string;
+  label: string;
+  fieldType: FieldType;
+  required?: boolean;
+  config?: string;
+  sortOrder?: number;
+}
+
+export interface UpdateFieldDefinitionPayload {
+  label?: string;
+  fieldType?: FieldType;
+  required?: boolean;
+  config?: string;
+  sortOrder?: number;
+}
+
+export interface CreateCustomRecordPayload {
+  workspaceId: string;
+  templateVersionId: string;
+  title: string;
+  fieldValues?: Record<string, any>;
+}
+
+export interface UpdateCustomRecordPayload {
+  title?: string;
+  fieldValues?: Record<string, any>;
+}
+
 export interface JobApplication {
   id: string;
   workspaceId: string;
+  templateVersionId?: string;
+  templateName?: string;
+  templateVersionNumber?: number;
   companyName: string;
   jobTitle: string;
   source?: string;
@@ -259,6 +379,7 @@ export interface JobApplication {
   notes?: string;
   followUpAt?: string;
   interviewRoundsCount: number;
+  customFields?: Record<string, any>;
   createdAt: string;
   updatedAt: string;
 }
@@ -290,6 +411,7 @@ export interface ApplicationDetail extends JobApplication {
   interviews: InterviewEvent[];
   history: ApplicationHistory[];
   attachedNoteIds: string[];
+  fieldDefinitions?: FieldDefinition[];
 }
 
 export interface JobStatsSummary {
@@ -305,6 +427,7 @@ export interface JobStatsSummary {
 
 export interface CreateApplicationPayload {
   workspaceId: string;
+  templateVersionId?: string;
   companyName: string;
   jobTitle: string;
   source?: string;
@@ -316,9 +439,11 @@ export interface CreateApplicationPayload {
   salary?: string;
   notes?: string;
   followUpAt?: string;
+  customFields?: Record<string, any>;
 }
 
 export interface UpdateApplicationPayload {
+  templateVersionId?: string;
   companyName?: string;
   jobTitle?: string;
   source?: string;
@@ -330,6 +455,7 @@ export interface UpdateApplicationPayload {
   salary?: string;
   notes?: string;
   followUpAt?: string;
+  customFields?: Record<string, any>;
 }
 
 export interface CreateInterviewPayload {
@@ -750,5 +876,78 @@ export const api = {
       apiClient<JobStatsSummary>(
         `/analytics/jobs/summary?workspaceId=${encodeURIComponent(workspaceId)}`
       ),
+  },
+  templates: {
+    list: (workspaceId: string, recordType?: TemplateRecordType) => {
+      const params = new URLSearchParams({ workspaceId });
+      if (recordType) params.append('recordType', recordType);
+      return apiClient<Template[]>(`/templates?${params.toString()}`);
+    },
+    get: (id: string) => apiClient<TemplateDetail>(`/templates/${id}`),
+    create: (payload: CreateTemplatePayload) =>
+      apiClient<TemplateDetail>('/templates', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+    update: (id: string, payload: UpdateTemplatePayload) =>
+      apiClient<Template>(`/templates/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(payload),
+      }),
+    delete: (id: string) =>
+      apiClient<void>(`/templates/${id}`, {
+        method: 'DELETE',
+      }),
+    createVersion: (templateId: string) =>
+      apiClient<TemplateVersion>(`/templates/${templateId}/versions`, {
+        method: 'POST',
+      }),
+    getVersion: (templateId: string, versionId: string) =>
+      apiClient<TemplateVersion>(`/templates/${templateId}/versions/${versionId}`),
+    publishVersion: (templateId: string, versionId: string) =>
+      apiClient<TemplateVersion>(`/templates/${templateId}/versions/${versionId}/publish`, {
+        method: 'POST',
+      }),
+    addField: (versionId: string, payload: CreateFieldDefinitionPayload) =>
+      apiClient<FieldDefinition>(`/templates/versions/${versionId}/fields`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+    updateField: (fieldId: string, payload: UpdateFieldDefinitionPayload) =>
+      apiClient<FieldDefinition>(`/templates/fields/${fieldId}`, {
+        method: 'PATCH',
+        body: JSON.stringify(payload),
+      }),
+    deleteField: (fieldId: string) =>
+      apiClient<void>(`/templates/fields/${fieldId}`, {
+        method: 'DELETE',
+      }),
+    reorderFields: (versionId: string, fieldIds: string[]) =>
+      apiClient<FieldDefinition[]>(`/templates/versions/${versionId}/fields/reorder`, {
+        method: 'PUT',
+        body: JSON.stringify({ fieldIds }),
+      }),
+  },
+  customRecords: {
+    list: (workspaceId: string, templateId?: string) => {
+      const params = new URLSearchParams({ workspaceId });
+      if (templateId) params.append('templateId', templateId);
+      return apiClient<CustomRecord[]>(`/records?${params.toString()}`);
+    },
+    get: (id: string) => apiClient<CustomRecord>(`/records/${id}`),
+    create: (payload: CreateCustomRecordPayload) =>
+      apiClient<CustomRecord>('/records', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+    update: (id: string, payload: UpdateCustomRecordPayload) =>
+      apiClient<CustomRecord>(`/records/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(payload),
+      }),
+    delete: (id: string) =>
+      apiClient<void>(`/records/${id}`, {
+        method: 'DELETE',
+      }),
   },
 };

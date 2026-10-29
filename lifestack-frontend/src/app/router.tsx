@@ -11,6 +11,8 @@ import { ProblemDetailPage } from '@/features/coding/ProblemDetailPage';
 import { NotesPage } from '@/features/notes/NotesPage';
 import { JobTrackerPage } from '@/features/jobs/JobTrackerPage';
 import { ApplicationDetailPage } from '@/features/jobs/ApplicationDetailPage';
+import { SettingsPage } from '@/features/settings/SettingsPage';
+import { CustomizationStudioPage } from '@/features/templates/CustomizationStudioPage';
 
 function FeaturePlaceholder({ title, description }: { title: string; description: string }) {
   return (
@@ -95,12 +97,11 @@ export const router = createBrowserRouter([
           },
           {
             path: 'settings',
-            element: (
-              <FeaturePlaceholder
-                title="Settings & Templates"
-                description="Configure timezone, custom template versions, and manage account preferences."
-              />
-            ),
+            element: <SettingsPage />,
+          },
+          {
+            path: 'settings/templates',
+            element: <CustomizationStudioPage />,
           },
         ],
       },

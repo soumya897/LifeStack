@@ -1,20 +1,26 @@
 package com.lifestack.job.dto;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lifestack.job.entity.ApplicationStatus;
 import com.lifestack.job.entity.JobApplication;
 import com.lifestack.job.entity.WorkMode;
+import com.lifestack.template.dto.FieldDefinitionResponse;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ApplicationDetailResponse {
 
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
     private UUID id;
     private UUID workspaceId;
+    private UUID templateVersionId;
+    private String templateName;
+    private Integer templateVersionNumber;
     private String companyName;
     private String jobTitle;
     private String source;
@@ -26,6 +32,8 @@ public class ApplicationDetailResponse {
     private String salary;
     private String notes;
     private LocalDate followUpAt;
+    private Map<String, Object> customFields = new HashMap<>();
+    private List<FieldDefinitionResponse> fieldDefinitions = new ArrayList<>();
     private Instant createdAt;
     private Instant updatedAt;
 
@@ -53,6 +61,28 @@ public class ApplicationDetailResponse {
         dto.setFollowUpAt(app.getFollowUpAt());
         dto.setCreatedAt(app.getCreatedAt());
         dto.setUpdatedAt(app.getUpdatedAt());
+
+        if (app.getTemplateVersion() != null) {
+            dto.setTemplateVersionId(app.getTemplateVersion().getId());
+            dto.setTemplateVersionNumber(app.getTemplateVersion().getVersionNumber());
+            if (app.getTemplateVersion().getTemplate() != null) {
+                dto.setTemplateName(app.getTemplateVersion().getTemplate().getName());
+            }
+
+            if (app.getTemplateVersion().getFieldDefinitions() != null) {
+                dto.setFieldDefinitions(app.getTemplateVersion().getFieldDefinitions().stream()
+                        .map(FieldDefinitionResponse::fromEntity)
+                        .collect(Collectors.toList()));
+            }
+        }
+
+        if (app.getCustomFields() != null && !app.getCustomFields().trim().isEmpty()) {
+            try {
+                dto.setCustomFields(MAPPER.readValue(app.getCustomFields(), new TypeReference<Map<String, Object>>() {}));
+            } catch (Exception e) {
+                dto.setCustomFields(Collections.emptyMap());
+            }
+        }
 
         if (app.getInterviews() != null) {
             dto.setInterviews(app.getInterviews().stream()
@@ -218,6 +248,46 @@ public class ApplicationDetailResponse {
 
     public void setAttachedNoteIds(List<UUID> attachedNoteIds) {
         this.attachedNoteIds = attachedNoteIds;
+    }
+
+    public UUID getTemplateVersionId() {
+        return templateVersionId;
+    }
+
+    public void setTemplateVersionId(UUID templateVersionId) {
+        this.templateVersionId = templateVersionId;
+    }
+
+    public String getTemplateName() {
+        return templateName;
+    }
+
+    public void setTemplateName(String templateName) {
+        this.templateName = templateName;
+    }
+
+    public Integer getTemplateVersionNumber() {
+        return templateVersionNumber;
+    }
+
+    public void setTemplateVersionNumber(Integer templateVersionNumber) {
+        this.templateVersionNumber = templateVersionNumber;
+    }
+
+    public Map<String, Object> getCustomFields() {
+        return customFields;
+    }
+
+    public void setCustomFields(Map<String, Object> customFields) {
+        this.customFields = customFields != null ? customFields : new HashMap<>();
+    }
+
+    public List<FieldDefinitionResponse> getFieldDefinitions() {
+        return fieldDefinitions;
+    }
+
+    public void setFieldDefinitions(List<FieldDefinitionResponse> fieldDefinitions) {
+        this.fieldDefinitions = fieldDefinitions;
     }
 }
 

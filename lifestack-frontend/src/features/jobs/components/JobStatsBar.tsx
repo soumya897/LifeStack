@@ -109,3 +109,4 @@ export const JobStatsBar: React.FC<JobStatsBarProps> = ({ stats, isLoading }) =>
     </div>
   );
 };
+

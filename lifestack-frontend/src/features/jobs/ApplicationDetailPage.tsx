@@ -18,6 +18,9 @@ import {
   FileText,
   CheckCircle2,
   AlertTriangle,
+  Layers,
+  Mail,
+  Sliders,
 } from 'lucide-react';
 import {
   api,
@@ -46,6 +49,82 @@ const ALL_STATUSES: ApplicationStatus[] = [
   'WITHDRAWN',
   'ON_HOLD',
 ];
+
+const renderFormattedFieldValue = (fieldDef: any, val: any) => {
+  if (val === undefined || val === null || val === '') {
+    return <span className="text-slate-400 italic font-normal text-xs">Not provided</span>;
+  }
+  switch (fieldDef.fieldType) {
+    case 'URL':
+      return (
+        <a
+          href={String(val)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 font-medium text-xs text-brand-600 hover:text-brand-800 hover:underline break-all"
+        >
+          {String(val)}
+          <ExternalLink className="h-3 w-3 shrink-0" />
+        </a>
+      );
+    case 'EMAIL':
+      return (
+        <a
+          href={`mailto:${String(val)}`}
+          className="inline-flex items-center gap-1 font-medium text-xs text-brand-600 hover:text-brand-800 hover:underline"
+        >
+          <Mail className="h-3 w-3 shrink-0 text-slate-400" />
+          {String(val)}
+        </a>
+      );
+    case 'BOOLEAN': {
+      const isTrue = val === true || val === 'true';
+      return (
+        <span
+          className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+            isTrue
+              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+              : 'bg-slate-100 text-slate-600 border border-slate-200'
+          }`}
+        >
+          {isTrue ? 'Yes' : 'No'}
+        </span>
+      );
+    }
+    case 'MULTI_SELECT': {
+      const items = Array.isArray(val) ? val : [val];
+      return (
+        <div className="flex flex-wrap gap-1">
+          {items.map((item: any, i: number) => (
+            <span
+              key={i}
+              className="rounded-md bg-purple-50 px-2 py-0.5 text-[11px] font-medium text-purple-700 border border-purple-200/60"
+            >
+              {String(item)}
+            </span>
+          ))}
+        </div>
+      );
+    }
+    case 'SINGLE_SELECT':
+      return (
+        <span className="inline-flex items-center rounded-md bg-purple-50 px-2.5 py-0.5 text-xs font-semibold text-purple-700 border border-purple-200/60">
+          {String(val)}
+        </span>
+      );
+    case 'DATE':
+      return (
+        <span className="flex items-center gap-1 text-xs text-slate-700 font-medium">
+          <Calendar className="h-3.5 w-3.5 text-slate-400" />
+          {String(val)}
+        </span>
+      );
+    case 'NUMBER':
+      return <span className="text-xs font-bold text-slate-800">{String(val)}</span>;
+    default:
+      return <span className="text-xs whitespace-pre-wrap text-slate-800">{String(val)}</span>;
+  }
+};
 
 export const ApplicationDetailPage: React.FC = () => {
   const { applicationId } = useParams<{ applicationId: string }>();
@@ -316,6 +395,71 @@ export const ApplicationDetailPage: React.FC = () => {
               <div className="rounded-xl bg-slate-50 p-3.5 text-xs text-slate-700 border border-slate-100 mt-2">
                 <span className="font-semibold block text-slate-800 mb-1">Recruiter / Job Notes:</span>
                 <p className="whitespace-pre-line text-slate-600">{app.notes}</p>
+              </div>
+            )}
+
+            {/* Custom Template Attributes (Milestone 7) */}
+            {app.templateVersionId ? (
+              <div className="mt-3 rounded-xl border border-purple-200/80 bg-purple-50/20 p-4">
+                <div className="flex items-center justify-between border-b border-purple-100 pb-2.5 mb-3">
+                  <div className="flex items-center gap-2">
+                    <Layers className="h-4 w-4 text-purple-600" />
+                    <span className="text-xs font-bold text-slate-800">
+                      {app.templateName || 'Custom Template'}
+                    </span>
+                    {app.templateVersionNumber !== undefined && (
+                      <span className="rounded-full bg-purple-100 px-2 py-0.5 text-[10px] font-bold text-purple-700">
+                        v{app.templateVersionNumber}
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => setIsEditAppModalOpen(true)}
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-purple-700 hover:text-purple-900 transition-colors"
+                  >
+                    <Edit2 className="h-3 w-3" />
+                    Edit Attributes
+                  </button>
+                </div>
+
+                {app.fieldDefinitions && app.fieldDefinitions.length > 0 ? (
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    {app.fieldDefinitions.map((field) => {
+                      const val = app.customFields?.[field.fieldKey];
+                      return (
+                        <div
+                          key={field.id}
+                          className="rounded-lg border border-slate-100 bg-white p-2.5 shadow-2xs"
+                        >
+                          <div className="flex items-center justify-between gap-1 mb-1">
+                            <span className="text-[11px] font-semibold text-slate-500">
+                              {field.label}
+                            </span>
+                            <span className="text-[9px] uppercase tracking-wider text-slate-400 font-mono">
+                              {field.fieldType}
+                            </span>
+                          </div>
+                          <div>{renderFormattedFieldValue(field, val)}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-xs text-slate-400">No field definitions configured for this template.</p>
+                )}
+              </div>
+            ) : (
+              <div className="mt-2 flex items-center justify-between rounded-xl border border-dashed border-slate-200 bg-slate-50/40 px-3.5 py-2 text-xs text-slate-500">
+                <div className="flex items-center gap-2">
+                  <Sliders className="h-3.5 w-3.5 text-slate-400" />
+                  <span>No custom template attached.</span>
+                </div>
+                <button
+                  onClick={() => setIsEditAppModalOpen(true)}
+                  className="font-semibold text-brand-600 hover:text-brand-700"
+                >
+                  Attach Custom Template
+                </button>
               </div>
             )}
           </div>
