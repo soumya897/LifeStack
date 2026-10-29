@@ -2,6 +2,9 @@ package com.lifestack.analytics.service;
 
 import com.lifestack.analytics.dto.DashboardSummaryResponse;
 import com.lifestack.common.exception.ResourceNotFoundException;
+import com.lifestack.learning.entity.Roadmap;
+import com.lifestack.learning.entity.RoadmapStatus;
+import com.lifestack.learning.repository.RoadmapRepository;
 import com.lifestack.workspace.entity.Workspace;
 import com.lifestack.workspace.repository.WorkspaceRepository;
 import org.springframework.stereotype.Service;
@@ -18,9 +21,12 @@ import java.util.UUID;
 public class DashboardService {
 
     private final WorkspaceRepository workspaceRepository;
+    private final RoadmapRepository roadmapRepository;
 
-    public DashboardService(WorkspaceRepository workspaceRepository) {
+    public DashboardService(WorkspaceRepository workspaceRepository,
+                            RoadmapRepository roadmapRepository) {
         this.workspaceRepository = workspaceRepository;
+        this.roadmapRepository = roadmapRepository;
     }
 
     @Transactional(readOnly = true)
@@ -45,9 +51,14 @@ public class DashboardService {
         response.setWorkspaceId(activeWorkspace.getId());
         response.setWorkspaceName(activeWorkspace.getName());
 
-        // Base metrics (populated from roadmaps, tasks, and applications as milestones expand)
-        response.setActiveRoadmapsCount(0);
-        response.setCompletedRoadmapsCount(0);
+        // Real counts for Learning roadmaps in active workspace
+        long activeRoadmaps = roadmapRepository.countByWorkspaceIdAndStatus(activeWorkspace.getId(), RoadmapStatus.ACTIVE);
+        long completedRoadmaps = roadmapRepository.countByWorkspaceIdAndStatus(activeWorkspace.getId(), RoadmapStatus.COMPLETED);
+
+        response.setActiveRoadmapsCount((int) activeRoadmaps);
+        response.setCompletedRoadmapsCount((int) completedRoadmaps);
+
+        // Future milestones (Tasks & Applications)
         response.setTasksDueTodayCount(0);
         response.setOverdueTasksCount(0);
         response.setCompletedTasksCount(0);
@@ -55,19 +66,34 @@ public class DashboardService {
         response.setUpcomingInterviewsCount(0);
         response.setFollowUpsDueCount(0);
 
-        // Initial onboarding activity items
+        // Recent activity aggregation
         List<DashboardSummaryResponse.ActivityItem> activities = new ArrayList<>();
-        activities.add(new DashboardSummaryResponse.ActivityItem(
-                UUID.randomUUID().toString(),
-                "WORKSPACE_READY",
-                "Workspace Ready",
-                "Your '" + activeWorkspace.getName() + "' workspace is active and ready for your first learning roadmap.",
-                activeWorkspace.getCreatedAt()
-        ));
+
+        List<Roadmap> recentRoadmaps = roadmapRepository.findTop5ByWorkspaceIdAndStatusOrderByUpdatedAtDesc(
+                activeWorkspace.getId(), RoadmapStatus.ACTIVE);
+
+        for (Roadmap r : recentRoadmaps) {
+            activities.add(new DashboardSummaryResponse.ActivityItem(
+                    r.getId().toString(),
+                    "ROADMAP_ACTIVE",
+                    "Roadmap In Progress",
+                    "Active learning in '" + r.getName() + "'.",
+                    r.getUpdatedAt() != null ? r.getUpdatedAt() : r.getCreatedAt()
+            ));
+        }
+
+        if (activities.isEmpty()) {
+            activities.add(new DashboardSummaryResponse.ActivityItem(
+                    UUID.randomUUID().toString(),
+                    "WORKSPACE_READY",
+                    "Workspace Ready",
+                    "Your '" + activeWorkspace.getName() + "' workspace is active and ready for your first learning roadmap.",
+                    activeWorkspace.getCreatedAt()
+            ));
+        }
 
         response.setRecentActivity(activities);
 
         return response;
     }
 }
-

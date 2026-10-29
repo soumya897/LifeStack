@@ -24,4 +24,5 @@ lifestack-frontend/.pnp
 lifestack-frontend/.pnp.js
 lifestack-frontend/*.log
 lifestack-frontend/.vite/
+*.tsbuildinfo
 

@@ -22,6 +22,84 @@ export interface Workspace {
   updatedAt: string;
 }
 
+export type RoadmapStatus = 'ACTIVE' | 'COMPLETED' | 'ARCHIVED';
+export type ProgressMode = 'TOPIC' | 'TASK' | 'WEIGHTED';
+export type TopicStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'REVISING';
+
+export interface Topic {
+  id: string;
+  roadmapId: string;
+  title: string;
+  description?: string;
+  status: TopicStatus;
+  sortOrder: number;
+  weight: number;
+  startDate?: string;
+  targetDate?: string;
+  completedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+  daysRemaining?: number | null;
+  isOverdue: boolean;
+}
+
+export interface Roadmap {
+  id: string;
+  workspaceId: string;
+  name: string;
+  description?: string;
+  status: RoadmapStatus;
+  progressMode: ProgressMode;
+  startDate?: string;
+  targetDate?: string;
+  completedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+  progressPercentage: number;
+  totalTopics: number;
+  completedTopics: number;
+  daysRemaining?: number | null;
+  isOverdue: boolean;
+  elapsedDays: number;
+  topics?: Topic[];
+}
+
+export interface CreateRoadmapPayload {
+  workspaceId: string;
+  name: string;
+  description?: string;
+  progressMode?: ProgressMode;
+  startDate?: string;
+  targetDate?: string;
+}
+
+export interface UpdateRoadmapPayload {
+  name?: string;
+  description?: string;
+  status?: RoadmapStatus;
+  progressMode?: ProgressMode;
+  startDate?: string;
+  targetDate?: string;
+}
+
+export interface CreateTopicPayload {
+  title: string;
+  description?: string;
+  weight?: number;
+  startDate?: string;
+  targetDate?: string;
+}
+
+export interface UpdateTopicPayload {
+  title?: string;
+  description?: string;
+  status?: TopicStatus;
+  weight?: number;
+  startDate?: string;
+  targetDate?: string;
+  sortOrder?: number;
+}
+
 export interface HealthCheckData {
   status: string;
   version: string;
@@ -190,6 +268,56 @@ export const api = {
       }),
     delete: (id: string) =>
       apiClient<void>(`/workspaces/${id}`, {
+        method: 'DELETE',
+      }),
+  },
+  roadmaps: {
+    list: (workspaceId: string, status?: RoadmapStatus) => {
+      const params = new URLSearchParams({ workspaceId });
+      if (status) params.append('status', status);
+      return apiClient<Roadmap[]>(`/roadmaps?${params.toString()}`);
+    },
+    get: (id: string) => apiClient<Roadmap>(`/roadmaps/${id}`),
+    create: (payload: CreateRoadmapPayload) =>
+      apiClient<Roadmap>('/roadmaps', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+    update: (id: string, payload: UpdateRoadmapPayload) =>
+      apiClient<Roadmap>(`/roadmaps/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(payload),
+      }),
+    delete: (id: string) =>
+      apiClient<void>(`/roadmaps/${id}`, {
+        method: 'DELETE',
+      }),
+  },
+  topics: {
+    list: (roadmapId: string) => apiClient<Topic[]>(`/roadmaps/${roadmapId}/topics`),
+    get: (id: string) => apiClient<Topic>(`/topics/${id}`),
+    create: (roadmapId: string, payload: CreateTopicPayload) =>
+      apiClient<Topic>(`/roadmaps/${roadmapId}/topics`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+    update: (id: string, payload: UpdateTopicPayload) =>
+      apiClient<Topic>(`/topics/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(payload),
+      }),
+    updateStatus: (id: string, status: TopicStatus) =>
+      apiClient<Topic>(`/topics/${id}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status }),
+      }),
+    reorder: (roadmapId: string, topicIds: string[]) =>
+      apiClient<Topic[]>(`/roadmaps/${roadmapId}/topics/reorder`, {
+        method: 'PUT',
+        body: JSON.stringify({ topicIds }),
+      }),
+    delete: (id: string) =>
+      apiClient<void>(`/topics/${id}`, {
         method: 'DELETE',
       }),
   },

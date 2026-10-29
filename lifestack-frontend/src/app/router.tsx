@@ -4,6 +4,8 @@ import { DashboardPage } from '@/features/dashboard/DashboardPage';
 import { LoginPage } from '@/features/auth/LoginPage';
 import { RegisterPage } from '@/features/auth/RegisterPage';
 import { ProtectedRoute } from '@/features/auth/ProtectedRoute';
+import { RoadmapListPage } from '@/features/learning/RoadmapListPage';
+import { RoadmapDetailPage } from '@/features/learning/RoadmapDetailPage';
 
 function FeaturePlaceholder({ title, description }: { title: string; description: string }) {
   return (
@@ -51,12 +53,11 @@ export const router = createBrowserRouter([
           },
           {
             path: 'learning',
-            element: (
-              <FeaturePlaceholder
-                title="Learning & Roadmaps"
-                description="Manage learning roadmaps such as DSA and Core Java, ordered topics, and progress calculations."
-              />
-            ),
+            element: <RoadmapListPage />,
+          },
+          {
+            path: 'learning/:roadmapId',
+            element: <RoadmapDetailPage />,
           },
           {
             path: 'coding',
@@ -89,8 +90,8 @@ export const router = createBrowserRouter([
             path: 'analytics',
             element: (
               <FeaturePlaceholder
-                title="Analytics"
-                description="Review monthly submission trends, interview funnel statistics, and learning velocity."
+                title="Analytics & Reports"
+                description="Review monthly job application conversion rates and learning velocity."
               />
             ),
           },
@@ -98,8 +99,8 @@ export const router = createBrowserRouter([
             path: 'settings',
             element: (
               <FeaturePlaceholder
-                title="Settings & Customization"
-                description="Configure timezone, custom template versions, appearance, and workspace options."
+                title="Settings & Templates"
+                description="Configure timezone, custom template versions, and manage account preferences."
               />
             ),
           },
