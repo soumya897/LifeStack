@@ -80,3 +80,4 @@ export const LifeStackLogo: React.FC<LifeStackLogoProps> = ({
   );
 };
 export default LifeStackLogo;
+

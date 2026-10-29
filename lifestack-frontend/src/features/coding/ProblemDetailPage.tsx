@@ -224,7 +224,7 @@ export function ProblemDetailPage() {
     <div className="space-y-6 max-w-6xl mx-auto pb-16">
       {/* Top Breadcrumb & Action Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center space-x-2 text-sm text-slate-500">
+        <div className="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm text-slate-500">
           <Link to="/coding" className="hover:text-slate-800 flex items-center gap-1 font-medium">
             <ArrowLeft className="w-4 h-4" />
             Coding Practice
@@ -234,7 +234,7 @@ export function ProblemDetailPage() {
               <span>/</span>
               <Link
                 to={`/learning/${problem.roadmapId}`}
-                className="hover:text-slate-800 font-medium truncate max-w-[150px]"
+                className="hover:text-slate-800 font-medium truncate max-w-[120px] sm:max-w-[150px]"
               >
                 {problem.roadmapName}
               </Link>
@@ -243,7 +243,7 @@ export function ProblemDetailPage() {
           {problem.topicTitle && (
             <>
               <span>/</span>
-              <span className="text-slate-700 font-semibold truncate max-w-[150px]">
+              <span className="text-slate-700 font-semibold truncate max-w-[120px] sm:max-w-[150px]">
                 {problem.topicTitle}
               </span>
             </>
@@ -269,7 +269,7 @@ export function ProblemDetailPage() {
       </div>
 
       {/* Main Problem Header Card */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm">
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-6 shadow-sm">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">

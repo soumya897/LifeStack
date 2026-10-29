@@ -204,7 +204,7 @@ export function CodingPracticePage() {
 
         <button
           onClick={handleOpenCreate}
-          className="inline-flex items-center justify-center px-4 py-2.5 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 active:scale-95 rounded-xl shadow-md shadow-emerald-500/20 transition-all self-start sm:self-auto"
+          className="inline-flex items-center justify-center px-4 py-2.5 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 active:scale-95 rounded-xl shadow-md shadow-emerald-500/20 transition-all w-full sm:w-auto"
         >
           <Plus className="w-4 h-4 mr-1.5" />
           Add Problem

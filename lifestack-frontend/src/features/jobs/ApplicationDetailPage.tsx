@@ -358,7 +358,7 @@ export const ApplicationDetailPage: React.FC = () => {
         </div>
 
         {/* Tab Navigation */}
-        <div className="mt-6 flex border-b border-slate-200 text-xs font-semibold">
+        <div className="mt-6 flex border-b border-slate-200 text-xs font-semibold overflow-x-auto whitespace-nowrap">
           <button
             onClick={() => setActiveTab('interviews')}
             className={`border-b-2 py-3 px-4 transition-colors flex items-center gap-2 ${

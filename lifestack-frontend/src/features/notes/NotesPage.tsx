@@ -173,20 +173,20 @@ export function NotesPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-auto">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           <button
             onClick={() => {
               setEditingNote(null);
               setIsNoteModalOpen(true);
             }}
-            className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 active:scale-95 rounded-xl shadow-md shadow-indigo-500/20 transition-all"
+            className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 active:scale-95 rounded-xl shadow-md shadow-indigo-500/20 transition-all flex-1 sm:flex-initial"
           >
             <Plus className="w-4 h-4 mr-1.5" />
             New Note
           </button>
           <button
             onClick={() => setIsResourceModalOpen(true)}
-            className="inline-flex items-center justify-center px-3.5 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 active:scale-95 rounded-xl shadow-xs transition-all"
+            className="inline-flex items-center justify-center px-3.5 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 active:scale-95 rounded-xl shadow-xs transition-all flex-1 sm:flex-initial"
           >
             <Link2 className="w-4 h-4 mr-1.5 text-sky-600" />
             Add Resource
@@ -540,13 +540,13 @@ export function NotesPage() {
                 {viewingNote.content || 'No content written in this note.'}
               </div>
 
-              <div className="text-xs text-slate-400 flex items-center justify-between pt-3 border-t border-slate-100">
+              <div className="text-xs text-slate-400 flex flex-col sm:flex-row sm:items-center justify-between gap-1 pt-3 border-t border-slate-100 text-[11px]">
                 <span>Created {new Date(viewingNote.createdAt).toLocaleString()}</span>
                 <span>Last updated {new Date(viewingNote.updatedAt).toLocaleString()}</span>
               </div>
             </div>
 
-            <div className="flex items-center justify-end px-6 py-3 bg-slate-50 border-t border-slate-100 gap-2">
+            <div className="flex items-center justify-end px-4 sm:px-6 py-3 bg-slate-50 border-t border-slate-100 gap-2">
               <button
                 onClick={() => {
                   const toEdit = viewingNote;

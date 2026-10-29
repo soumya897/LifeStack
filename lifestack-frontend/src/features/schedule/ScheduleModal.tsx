@@ -105,7 +105,7 @@ export function ScheduleModal({ isOpen, onClose, onSubmit, initialData }: Schedu
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/60">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-slate-100 bg-slate-50/60">
           <div className="flex items-center space-x-2.5">
             <div className="p-2 bg-brand-50 text-brand-600 rounded-xl">
               <BellRing className="w-5 h-5 text-brand-600" />
@@ -129,7 +129,7 @@ export function ScheduleModal({ isOpen, onClose, onSubmit, initialData }: Schedu
 
         {/* Form Body */}
         <form onSubmit={handleSubmit(onFormSubmit)} className="flex flex-col flex-1 overflow-hidden">
-          <div className="p-6 space-y-4 overflow-y-auto flex-1">
+          <div className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
             {submitError && (
               <div className="p-3 text-xs text-rose-700 bg-rose-50 border border-rose-200 rounded-xl">
                 {submitError}
@@ -274,12 +274,12 @@ export function ScheduleModal({ isOpen, onClose, onSubmit, initialData }: Schedu
           </div>
 
           {/* Footer Actions */}
-          <div className="flex items-center justify-end px-6 py-4 bg-slate-50 border-t border-slate-100 gap-3">
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end px-4 sm:px-6 py-3 sm:py-4 bg-slate-50 border-t border-slate-100 gap-2 sm:gap-3">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-200/50 rounded-xl transition-colors disabled:opacity-50"
+              className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-200/50 rounded-xl transition-colors disabled:opacity-50 text-center"
             >
               Cancel
             </button>

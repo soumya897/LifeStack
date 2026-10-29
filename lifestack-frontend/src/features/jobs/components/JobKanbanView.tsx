@@ -173,13 +173,13 @@ export const JobKanbanView: React.FC<JobKanbanViewProps> = ({
   return (
     <div className="space-y-4">
       {/* Modern Stage Scope Filter Bar (Quick access without horizontal scrolling) */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200/80 bg-white px-4 py-2.5 shadow-2xs">
-        <div className="flex items-center gap-1.5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 rounded-xl border border-slate-200/80 bg-white px-3 sm:px-4 py-2.5 shadow-2xs">
+        <div className="flex items-center gap-1.5 shrink-0">
           <Filter className="h-3.5 w-3.5 text-slate-400" />
           <span className="text-xs font-semibold text-slate-600">Stage Filter:</span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="flex items-center gap-1.5 overflow-x-auto whitespace-nowrap pb-1 sm:pb-0">
           <button
             onClick={() => setStageScope('all')}
             className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition-all ${

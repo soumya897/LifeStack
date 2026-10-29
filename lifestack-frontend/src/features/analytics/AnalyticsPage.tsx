@@ -385,8 +385,8 @@ export const AnalyticsPage: React.FC = () => {
       </div>
 
       {/* Tabs Header */}
-      <div className="border-b border-slate-200">
-        <nav className="-mb-px flex space-x-8">
+      <div className="border-b border-slate-200 overflow-x-auto">
+        <nav className="-mb-px flex space-x-4 sm:space-x-8 whitespace-nowrap">
           <button
             onClick={() => setActiveTab('overview')}
             className={`inline-flex items-center gap-2 border-b-2 py-3 px-1 text-sm font-semibold transition-colors ${
@@ -429,7 +429,7 @@ export const AnalyticsPage: React.FC = () => {
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {/* Stage Funnel Progression */}
             <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-2xs">
-              <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
                 <div>
                   <h2 className="text-base font-bold text-slate-900">Application Stage Funnel</h2>
                   <p className="text-xs text-slate-500">Pipeline progression & conversion per recruitment milestone</p>
@@ -479,7 +479,7 @@ export const AnalyticsPage: React.FC = () => {
 
             {/* Monthly Application & Interview Velocity */}
             <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-2xs">
-              <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
                 <div>
                   <h2 className="text-base font-bold text-slate-900">Monthly Velocity (6 Months)</h2>
                   <p className="text-xs text-slate-500">Application volume vs interview rounds conducted</p>
@@ -548,7 +548,7 @@ export const AnalyticsPage: React.FC = () => {
 
           {/* Quick Source Effectiveness Card */}
           <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-2xs">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
               <div>
                 <h2 className="text-base font-bold text-slate-900">Application Source Distribution</h2>
                 <p className="text-xs text-slate-500">Where top recruitment results and offers originate</p>

@@ -168,16 +168,14 @@ export function PwaInstallPrompt() {
 
       {/* Floating Install Prompt Banner */}
       {isVisible && (
-        <div className="fixed bottom-6 right-6 z-50 w-96 max-w-[calc(100vw-2rem)] rounded-2xl bg-slate-900/95 text-white p-5 shadow-2xl backdrop-blur-md border border-slate-700/80 animate-in fade-in slide-in-from-bottom-6 duration-300">
+        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 w-96 max-w-[calc(100vw-2rem)] rounded-2xl bg-slate-900/95 text-white p-4 sm:p-5 shadow-2xl backdrop-blur-md border border-slate-700/80 animate-in fade-in slide-in-from-bottom-6 duration-300">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
               <LifeStackLogo className="h-11 w-11 shrink-0 rounded-2xl shadow-md shadow-brand-500/20" withBackground={true} />
               <div>
                 <div className="flex items-center gap-2">
                   <h4 className="text-sm font-bold tracking-tight text-white">Install LifeStack App</h4>
-                  <span className="rounded bg-brand-500/25 px-1.5 py-0.5 text-[10px] font-bold text-brand-300 border border-brand-400/30">
-                    PWA
-                  </span>
+
                 </div>
                 <p className="text-xs text-slate-300 mt-0.5 leading-snug">
                   Fast desktop/mobile app window with offline caching & instant launch.
@@ -283,9 +281,7 @@ export function PwaInstallSidebarItem() {
       >
         <Download className="h-4 w-4 shrink-0 text-brand-600" />
         <span className="flex-1 text-left">Install App</span>
-        <span className="rounded bg-brand-200/60 px-1.5 py-0.5 text-[10px] font-bold text-brand-800">
-          PWA
-        </span>
+
       </button>
     </div>
   );

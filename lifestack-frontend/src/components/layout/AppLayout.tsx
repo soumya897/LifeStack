@@ -224,11 +224,11 @@ export function AppLayout() {
       {/* Main Content Area */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Top Navbar */}
-        <header className="flex h-16 items-center justify-between border-b border-slate-200 bg-white px-6">
-          <div className="flex items-center gap-4">
+        <header className="flex h-16 items-center justify-between border-b border-slate-200 bg-white px-3 sm:px-6">
+          <div className="flex items-center gap-2 sm:gap-4">
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="rounded-md p-2 text-slate-600 hover:bg-slate-100 lg:hidden"
+              className="rounded-md p-1.5 sm:p-2 text-slate-600 hover:bg-slate-100 lg:hidden"
               aria-label="Open sidebar"
             >
               <Menu className="h-5 w-5" />
@@ -238,18 +238,18 @@ export function AppLayout() {
             <div className="relative" ref={workspaceDropdownRef}>
               <button
                 onClick={() => setWorkspaceMenuOpen(!workspaceMenuOpen)}
-                className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50/80 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+                className="inline-flex items-center gap-1.5 sm:gap-2 rounded-lg border border-slate-200 bg-slate-50/80 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-colors"
               >
-                <span className="text-slate-400">Workspace:</span>
-                <span className="font-semibold text-slate-900 truncate max-w-[150px] sm:max-w-[200px]">
+                <span className="text-slate-400 hidden xs:inline">Workspace:</span>
+                <span className="font-semibold text-slate-900 truncate max-w-[110px] xs:max-w-[150px] sm:max-w-[200px]">
                   {currentWorkspace?.name || 'Personal Workspace'}
                 </span>
-                <ChevronDown className="h-3.5 w-3.5 text-slate-500" />
+                <ChevronDown className="h-3.5 w-3.5 text-slate-500 shrink-0" />
               </button>
 
               {/* Dropdown Menu */}
               {workspaceMenuOpen && (
-                <div className="absolute left-0 mt-2 w-64 rounded-xl border border-slate-200 bg-white p-2 shadow-lg z-50">
+                <div className="absolute left-0 mt-2 w-64 max-w-[calc(100vw-2rem)] rounded-xl border border-slate-200 bg-white p-2 shadow-lg z-50">
                   <div className="px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                     Switch Workspace
                   </div>
@@ -315,19 +315,19 @@ export function AppLayout() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <PwaInstallHeaderButton />
             {user && (
-              <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 py-1 pl-2.5 pr-3 text-xs">
-                <UserIcon className="h-3.5 w-3.5 text-brand-600" />
-                <span className="font-medium text-slate-700">{user.displayName}</span>
+              <div className="flex items-center gap-1.5 sm:gap-2 rounded-full border border-slate-200 bg-slate-50 py-1 px-2 sm:pl-2.5 sm:pr-3 text-xs">
+                <UserIcon className="h-3.5 w-3.5 text-brand-600 shrink-0" />
+                <span className="font-medium text-slate-700 hidden sm:inline truncate max-w-[120px]">{user.displayName}</span>
               </div>
             )}
           </div>
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-6 md:p-8">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8">
           <div className="mx-auto max-w-7xl">
             <Outlet />
           </div>
