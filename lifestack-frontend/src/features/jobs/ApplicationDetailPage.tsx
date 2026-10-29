@@ -33,6 +33,7 @@ import { useWorkspace } from '../workspace/WorkspaceContext';
 import { ApplicationStatusBadge, WorkModeBadge, InterviewResultBadge, InterviewStatusBadge, EventTypeLabel } from './components/JobStatusBadge';
 import { ApplicationModal } from './components/ApplicationModal';
 import { InterviewEventModal } from './components/InterviewEventModal';
+import { LifeStackLoader } from '@/components/LifeStackLoader';
 
 const ALL_STATUSES: ApplicationStatus[] = [
   'SAVED',
@@ -175,9 +176,8 @@ export const ApplicationDetailPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="rounded-xl border border-slate-200 bg-white p-16 text-center">
-        <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-brand-600 border-t-transparent" />
-        <p className="mt-3 text-xs text-slate-500">Loading application details...</p>
+      <div className="rounded-xl border border-slate-200 bg-white p-12 text-center">
+        <LifeStackLoader size="lg" center label="Loading application details..." />
       </div>
     );
   }

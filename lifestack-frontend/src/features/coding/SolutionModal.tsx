@@ -2,7 +2,8 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { X, Loader2, Code2, Cpu } from 'lucide-react';
+import { X, Code2, Cpu } from 'lucide-react';
+import { LifeStackLoader } from '../../components/LifeStackLoader';
 import { ProblemSolution } from '../../lib/api';
 
 const solutionSchema = z.object({
@@ -233,7 +234,7 @@ export function SolutionModal({ isOpen, onClose, onSubmit, initialData }: Soluti
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <LifeStackLoader size="xs" className="mr-2" />
                   Saving...
                 </>
               ) : isEditing ? (

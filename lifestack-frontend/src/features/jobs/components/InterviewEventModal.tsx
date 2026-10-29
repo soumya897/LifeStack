@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Calendar, Clock, Award, AlertCircle } from 'lucide-react';
+import { LifeStackLoader } from '@/components/LifeStackLoader';
 import {
   InterviewEvent,
   InterviewEventType,
@@ -287,9 +288,18 @@ export const InterviewEventModal: React.FC<InterviewEventModalProps> = ({
             <button
               type="submit"
               disabled={loading}
-              className="rounded-lg bg-brand-600 px-5 py-2 text-sm font-semibold text-white shadow-xs hover:bg-brand-700 disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-5 py-2 text-sm font-semibold text-white shadow-xs hover:bg-brand-700 disabled:opacity-50"
             >
-              {loading ? 'Saving...' : isEditing ? 'Update Round' : 'Schedule Round'}
+              {loading ? (
+                <>
+                  <LifeStackLoader size="xs" />
+                  <span>Saving...</span>
+                </>
+              ) : isEditing ? (
+                'Update Round'
+              ) : (
+                'Schedule Round'
+              )}
             </button>
           </div>
         </form>

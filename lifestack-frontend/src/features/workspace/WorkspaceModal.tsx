@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Workspace } from '@/lib/api';
-import { X, Loader2, FolderPlus, Edit3 } from 'lucide-react';
+import { X, FolderPlus, Edit3 } from 'lucide-react';
+import { LifeStackLoader } from '@/components/LifeStackLoader';
 
 interface WorkspaceModalProps {
   isOpen: boolean;
@@ -126,7 +127,7 @@ export function WorkspaceModal({ isOpen, onClose, workspaceToEdit, onSave }: Wor
               disabled={isSubmitting}
               className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-700 disabled:opacity-50"
             >
-              {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+              {isSubmitting && <LifeStackLoader size="xs" />}
               <span>{isEdit ? 'Save Changes' : 'Create Workspace'}</span>
             </button>
           </div>

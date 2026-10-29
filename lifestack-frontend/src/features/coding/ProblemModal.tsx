@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { X, Loader2, AlertCircle, Code2 } from 'lucide-react';
+import { X, AlertCircle, Code2 } from 'lucide-react';
+import { LifeStackLoader } from '../../components/LifeStackLoader';
 import { Problem, ProblemDifficulty, ProblemStatus } from '../../lib/api';
 
 const problemSchema = z.object({
@@ -283,7 +284,7 @@ export function ProblemModal({
               disabled={isSubmitting}
               className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 active:scale-95 rounded-xl shadow-xs transition-all disabled:opacity-50 cursor-pointer"
             >
-              {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
+              {isSubmitting && <LifeStackLoader size="xs" />}
               <span>{isEditing ? 'Save Changes' : 'Create Problem'}</span>
             </button>
           </div>

@@ -12,11 +12,11 @@ import {
   Trash2,
   Clock,
   Sparkles,
-  Loader2,
   Copy,
   Check,
   X,
 } from 'lucide-react';
+import { LifeStackLoader } from '../../components/LifeStackLoader';
 import { api, Note, Resource, CreateNotePayload } from '../../lib/api';
 import { useWorkspace } from '../workspace/WorkspaceContext';
 import { NoteModal, NoteFormValues } from './NoteModal';
@@ -293,10 +293,7 @@ export function NotesPage() {
               </button>
             </div>
           ) : isLoadingNotes ? (
-            <div className="py-16 text-center">
-              <Loader2 className="w-8 h-8 animate-spin text-indigo-600 mx-auto" />
-              <p className="text-xs text-slate-500 mt-2">Loading notes...</p>
-            </div>
+            <LifeStackLoader center label="Loading notes..." />
           ) : filteredNotes.length === 0 ? (
             <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-12 text-center max-w-md mx-auto space-y-3">
               <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 mx-auto flex items-center justify-center">
@@ -405,9 +402,7 @@ export function NotesPage() {
       {activeTab === 'resources' && (
         <div className="space-y-4">
           {isLoadingResources ? (
-            <div className="py-16 text-center">
-              <Loader2 className="w-8 h-8 animate-spin text-sky-600 mx-auto" />
-            </div>
+            <LifeStackLoader center label="Loading resources..." />
           ) : resources.length === 0 ? (
             <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-12 text-center max-w-md mx-auto space-y-3">
               <div className="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 mx-auto flex items-center justify-center">

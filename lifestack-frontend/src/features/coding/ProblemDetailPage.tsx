@@ -14,9 +14,9 @@ import {
   FileText,
   Clock,
   Sparkles,
-  Loader2,
   BookOpen,
 } from 'lucide-react';
+import { LifeStackLoader } from '../../components/LifeStackLoader';
 import {
   api,
   Problem,
@@ -196,7 +196,7 @@ export function ProblemDetailPage() {
   if (isLoadingProblem) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+        <LifeStackLoader size="lg" label="Loading problem details..." />
       </div>
     );
   }
@@ -372,9 +372,7 @@ export function ProblemDetailPage() {
         </div>
 
         {isLoadingSolutions ? (
-          <div className="py-8 text-center">
-            <Loader2 className="w-6 h-6 animate-spin text-emerald-600 mx-auto" />
-          </div>
+          <LifeStackLoader size="md" center label="Loading solutions..." />
         ) : solutions.length === 0 ? (
           <div className="bg-white rounded-2xl border border-dashed border-slate-200 p-8 text-center space-y-3">
             <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 mx-auto flex items-center justify-center">

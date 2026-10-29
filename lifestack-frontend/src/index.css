@@ -17,3 +17,62 @@ body {
   width: 100%;
 }
 
+/* LifeStack Branded Loader Animations */
+.lifestack-loader-container {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.lifestack-loader-svg {
+  filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.35));
+}
+
+.lifestack-loader-svg-compact {
+  filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.35));
+}
+
+/* Outer L pulse */
+.l-spine {
+  animation: pulse-frame 1.8s ease-in-out infinite;
+}
+
+/* Bars sequential scale-up animation anchored to bottom */
+.bar {
+  transform-box: fill-box;
+  transform-origin: bottom center;
+  animation: bar-grow 1.4s ease-in-out infinite;
+}
+
+.step-1 {
+  animation-delay: 0.15s;
+}
+.step-2 {
+  animation-delay: 0.30s;
+}
+.step-3 {
+  animation-delay: 0.45s;
+}
+
+@keyframes bar-grow {
+  0%, 100% {
+    transform: scaleY(0.4);
+    opacity: 0.35;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+    filter: drop-shadow(0 0 8px rgba(125, 211, 252, 0.8));
+  }
+}
+
+@keyframes pulse-frame {
+  0%, 100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 12px rgba(2, 132, 199, 0.6));
+  }
+}
+

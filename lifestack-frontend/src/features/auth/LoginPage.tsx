@@ -4,8 +4,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from './AuthContext';
-import { Loader2, AlertCircle, ArrowRight, Lock, Mail } from 'lucide-react';
+import { AlertCircle, ArrowRight, Lock, Mail } from 'lucide-react';
 import { LifeStackLogo } from '@/components/LifeStackLogo';
+import { LifeStackLoader } from '@/components/LifeStackLoader';
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -132,7 +133,7 @@ export function LoginPage() {
           >
             {isSubmitting ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <LifeStackLoader size="xs" />
                 <span>Signing in...</span>
               </>
             ) : (

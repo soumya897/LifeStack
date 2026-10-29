@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { JobApplication, ApplicationStatus } from '../../../lib/api';
 import { WorkModeBadge } from './JobStatusBadge';
+import { LifeStackLoader } from '@/components/LifeStackLoader';
 
 interface JobTableViewProps {
   applications: JobApplication[];
@@ -64,9 +65,8 @@ export const JobTableView: React.FC<JobTableViewProps> = ({
 
   if (isLoading) {
     return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-xs">
-        <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-brand-600 border-t-transparent" />
-        <p className="mt-3 text-xs font-medium text-slate-500">Loading job applications...</p>
+      <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-xs">
+        <LifeStackLoader size="lg" center label="Loading job applications..." />
       </div>
     );
   }

@@ -2,7 +2,8 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { X, Loader2 } from 'lucide-react';
+import { X } from 'lucide-react';
+import { LifeStackLoader } from '../../components/LifeStackLoader';
 import { Topic, TopicStatus } from '../../lib/api';
 
 const topicSchema = z.object({
@@ -207,7 +208,7 @@ export function TopicModal({
               disabled={isSubmitting}
               className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 active:scale-95 rounded-xl shadow-xs transition-all disabled:opacity-50 cursor-pointer"
             >
-              {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
+              {isSubmitting && <LifeStackLoader size="xs" />}
               <span>{isEditing ? 'Save Changes' : 'Add Topic'}</span>
             </button>
           </div>

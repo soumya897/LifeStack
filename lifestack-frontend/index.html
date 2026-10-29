@@ -11,7 +11,35 @@
     <title>LifeStack — Personal Productivity Platform</title>
   </head>
   <body class="bg-slate-50 text-slate-900 antialiased selection:bg-brand-500 selection:text-white">
-    <div id="root"></div>
+    <div id="root">
+      <div style="min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #f8fafc;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="72" height="72" role="status" aria-label="Loading LifeStack...">
+          <defs>
+            <linearGradient id="init-load-frame" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#38bdf8" />
+              <stop offset="60%" stop-color="#0284c7" />
+              <stop offset="100%" stop-color="#0369a1" />
+            </linearGradient>
+            <linearGradient id="init-load-bar-1" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#38bdf8" />
+              <stop offset="100%" stop-color="#0284c7" />
+            </linearGradient>
+            <linearGradient id="init-load-bar-2" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#7dd3fc" />
+              <stop offset="100%" stop-color="#0284c7" />
+            </linearGradient>
+            <linearGradient id="init-load-bar-3" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#bae6fd" />
+              <stop offset="100%" stop-color="#38bdf8" />
+            </linearGradient>
+          </defs>
+          <path d="M 128 120 C 128 115.58 131.58 112 136 112 L 180 112 C 184.42 112 188 115.58 188 120 L 188 340 L 376 340 C 380.42 340 384 343.58 384 348 L 384 392 C 384 396.42 380.42 400 376 400 L 144 400 C 135.16 400 128 392.84 128 384 Z" fill="url(#init-load-frame)" />
+          <rect x="208" y="278" width="46" height="46" rx="10" fill="url(#init-load-bar-1)" />
+          <rect x="268" y="202" width="46" height="122" rx="10" fill="url(#init-load-bar-2)" />
+          <rect x="328" y="120" width="46" height="204" rx="10" fill="url(#init-load-bar-3)" />
+        </svg>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

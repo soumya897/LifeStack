@@ -3,6 +3,7 @@ import { api } from '@/lib/api';
 import { useAuth } from '@/features/auth/AuthContext';
 import { useWorkspace } from '@/features/workspace/WorkspaceContext';
 import { useNavigate } from 'react-router-dom';
+import { LifeStackLoader } from '@/components/LifeStackLoader';
 import {
   Compass,
   CalendarCheck,
@@ -63,7 +64,7 @@ export function DashboardPage() {
             disabled={isFetching}
             className="inline-flex items-center gap-2 rounded-lg bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-2xs border border-slate-200 hover:bg-slate-50 disabled:opacity-50 transition-colors"
           >
-            <RefreshCw className={`h-3.5 w-3.5 ${isFetching ? 'animate-spin text-brand-600' : ''}`} />
+            {isFetching ? <LifeStackLoader size="xs" /> : <RefreshCw className="h-3.5 w-3.5 text-slate-500" />}
             Refresh
           </button>
         </div>

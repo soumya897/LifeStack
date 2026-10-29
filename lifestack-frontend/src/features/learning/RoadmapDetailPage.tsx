@@ -35,6 +35,7 @@ import { TopicModal, TopicFormValues } from './TopicModal';
 import { ProblemModal } from '../coding/ProblemModal';
 import { NoteModal } from '../notes/NoteModal';
 import { ResourceModal } from '../notes/ResourceModal';
+import { LifeStackLoader } from '../../components/LifeStackLoader';
 
 const getTopicStatusBadge = (status: TopicStatus) => {
   switch (status) {
@@ -626,10 +627,8 @@ export function RoadmapDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <div className="h-8 w-40 bg-slate-200 animate-pulse rounded-lg" />
-        <div className="h-44 bg-slate-100 animate-pulse rounded-2xl border border-slate-200" />
-        <div className="h-64 bg-slate-100 animate-pulse rounded-2xl border border-slate-200" />
+      <div className="rounded-2xl border border-slate-200 bg-white p-16 text-center shadow-xs">
+        <LifeStackLoader size="lg" center label="Loading roadmap details..." />
       </div>
     );
   }

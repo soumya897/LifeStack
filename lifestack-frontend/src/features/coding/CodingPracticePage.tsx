@@ -10,9 +10,9 @@ import {
   Trash2,
   CheckCircle2,
   Sparkles,
-  Loader2,
   Compass,
 } from 'lucide-react';
+import { LifeStackLoader } from '../../components/LifeStackLoader';
 import {
   api,
   Problem,
@@ -292,10 +292,7 @@ export function CodingPracticePage() {
 
       {/* Problems List */}
       {isLoading ? (
-        <div className="py-16 text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-emerald-600 mx-auto" />
-          <p className="text-xs text-slate-500 mt-2">Loading coding problems...</p>
-        </div>
+        <LifeStackLoader center label="Loading coding problems..." />
       ) : filteredProblems.length === 0 ? (
         <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-12 text-center max-w-md mx-auto space-y-3">
           <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 mx-auto flex items-center justify-center">

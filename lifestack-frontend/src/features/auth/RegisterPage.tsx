@@ -4,8 +4,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
-import { Loader2, AlertCircle, ArrowRight, Lock, Mail, User, Globe } from 'lucide-react';
+import { AlertCircle, ArrowRight, Lock, Mail, User, Globe } from 'lucide-react';
 import { LifeStackLogo } from '@/components/LifeStackLogo';
+import { LifeStackLoader } from '@/components/LifeStackLoader';
 
 const registerSchema = z
   .object({
@@ -229,7 +230,7 @@ export function RegisterPage() {
           >
             {isSubmitting ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <LifeStackLoader size="xs" />
                 <span>Creating account...</span>
               </>
             ) : (

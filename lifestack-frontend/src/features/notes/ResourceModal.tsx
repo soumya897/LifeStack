@@ -1,7 +1,8 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { X, Loader2, Link2 } from 'lucide-react';
+import { X, Link2 } from 'lucide-react';
+import { LifeStackLoader } from '../../components/LifeStackLoader';
 
 const resourceSchema = z.object({
   name: z.string().min(1, 'Name is required').max(255, 'Name must be under 255 characters'),
@@ -145,7 +146,7 @@ export function ResourceModal({ isOpen, onClose, onSubmit }: ResourceModalProps)
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <LifeStackLoader size="xs" className="mr-2" />
                   Saving...
                 </>
               ) : (

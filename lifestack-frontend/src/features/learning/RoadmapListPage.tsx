@@ -17,6 +17,7 @@ import {
 import { api, Roadmap, RoadmapStatus } from '../../lib/api';
 import { useWorkspace } from '../workspace/WorkspaceContext';
 import { RoadmapModal, RoadmapFormValues } from './RoadmapModal';
+import { LifeStackLoader } from '../../components/LifeStackLoader';
 
 export function RoadmapListPage() {
   const navigate = useNavigate();
@@ -213,10 +214,8 @@ export function RoadmapListPage() {
 
       {/* Loading state */}
       {isLoading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-56 bg-slate-100 animate-pulse rounded-2xl border border-slate-200" />
-          ))}
+        <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-xs">
+          <LifeStackLoader size="lg" center label="Loading learning roadmaps..." />
         </div>
       )}
 

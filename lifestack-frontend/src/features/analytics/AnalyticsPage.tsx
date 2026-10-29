@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { api } from '../../lib/api';
 import { useWorkspace } from '../workspace/WorkspaceContext';
+import { LifeStackLoader } from '@/components/LifeStackLoader';
 
 export const AnalyticsPage: React.FC = () => {
   const { currentWorkspace } = useWorkspace();
@@ -252,7 +253,7 @@ export const AnalyticsPage: React.FC = () => {
             className="inline-flex items-center gap-2 rounded-lg bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-2xs border border-slate-200 hover:bg-slate-50 disabled:opacity-50 transition-colors"
             title="Refresh analytics data"
           >
-            <RefreshCw className={`h-3.5 w-3.5 text-slate-500 ${isRefreshingAll ? 'animate-spin text-brand-600' : ''}`} />
+            {isRefreshingAll ? <LifeStackLoader size="xs" /> : <RefreshCw className="h-3.5 w-3.5 text-slate-500" />}
             Refresh
           </button>
 

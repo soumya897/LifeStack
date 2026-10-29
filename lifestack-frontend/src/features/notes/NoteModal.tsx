@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { X, Loader2, FileText, Tag, AlertCircle } from 'lucide-react';
+import { X, FileText, Tag, AlertCircle } from 'lucide-react';
+import { LifeStackLoader } from '../../components/LifeStackLoader';
 import { Note } from '../../lib/api';
 
 const noteSchema = z.object({
@@ -174,7 +175,7 @@ export function NoteModal({
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <LifeStackLoader size="xs" className="mr-2" />
                   Saving...
                 </>
               ) : isEditing ? (

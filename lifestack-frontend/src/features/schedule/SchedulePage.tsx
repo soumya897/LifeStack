@@ -10,12 +10,12 @@ import {
   Check,
   Search,
   Sparkles,
-  Loader2,
   BookOpen,
   Briefcase,
   CheckSquare,
   AlertCircle,
 } from 'lucide-react';
+import { LifeStackLoader } from '@/components/LifeStackLoader';
 import { api, ScheduleItem, ScheduleItemType, ScheduleStatus, AlertPriority } from '@/lib/api';
 import { useWorkspace } from '@/features/workspace/WorkspaceContext';
 import { ScheduleModal, ScheduleFormValues } from './ScheduleModal';
@@ -390,10 +390,7 @@ export function SchedulePage() {
           </button>
         </div>
       ) : isLoading ? (
-        <div className="py-20 text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-brand-600 mx-auto" />
-          <p className="text-xs text-slate-500 mt-2 font-medium">Loading your schedule & alerts...</p>
-        </div>
+        <LifeStackLoader center label="Loading your schedule & alerts..." />
       ) : filteredSchedules.length === 0 ? (
         <div className="bg-white rounded-3xl border border-dashed border-slate-300 p-12 text-center max-w-md mx-auto space-y-3">
           <div className="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 mx-auto flex items-center justify-center">

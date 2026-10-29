@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { X, Loader2, BellRing, Calendar, Volume2, Sparkles } from 'lucide-react';
+import { X, BellRing, Calendar, Volume2, Sparkles } from 'lucide-react';
+import { LifeStackLoader } from '@/components/LifeStackLoader';
 import { ScheduleItem } from '@/lib/api';
 import { playNotificationChime } from '@/lib/audioNotifier';
 
@@ -290,7 +291,7 @@ export function ScheduleModal({ isOpen, onClose, onSubmit, initialData }: Schedu
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <LifeStackLoader size="xs" className="mr-2" />
                   Saving...
                 </>
               ) : isEditing ? (
