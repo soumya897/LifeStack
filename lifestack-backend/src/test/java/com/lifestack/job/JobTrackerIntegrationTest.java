@@ -134,6 +134,16 @@ class JobTrackerIntegrationTest {
                 .andExpect(jsonPath("$.data.content", hasSize(1)))
                 .andExpect(jsonPath("$.data.content[0].companyName").value("Google"));
 
+        // 5b. Advance application status to SCREENING
+        UpdateApplicationRequest advanceToScreening = new UpdateApplicationRequest();
+        advanceToScreening.setStatus(ApplicationStatus.SCREENING);
+        mockMvc.perform(patch("/api/v1/applications/" + applicationId)
+                        .session(aliceSession)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(advanceToScreening)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.status").value("SCREENING"));
+
         // 6. Alice schedules an interview event: "Technical Round 1"
         CreateInterviewRequest round1 = new CreateInterviewRequest(
                 "Technical Coding Round 1",
@@ -161,7 +171,7 @@ class JobTrackerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.status").value("INTERVIEW"))
                 .andExpect(jsonPath("$.data.interviews", hasSize(1)))
-                .andExpect(jsonPath("$.data.history", hasSize(2))); // Initial creation + auto progress
+                .andExpect(jsonPath("$.data.history", hasSize(3))); // Initial creation + move to SCREENING + auto progress
 
         // 8. Alice links preparation note to Google application
         mockMvc.perform(post("/api/v1/applications/" + applicationId + "/notes/" + noteId)
@@ -189,7 +199,7 @@ class JobTrackerIntegrationTest {
                 .andExpect(jsonPath("$.data.status").value("OFFER"))
                 .andExpect(jsonPath("$.data.attachedNoteIds", hasSize(1)))
                 .andExpect(jsonPath("$.data.attachedNoteIds[0]").value(noteIdStr))
-                .andExpect(jsonPath("$.data.history", hasSize(3)));
+                .andExpect(jsonPath("$.data.history", hasSize(4)));
 
         // 11. Alice checks job stats summary
         mockMvc.perform(get("/api/v1/applications/stats")

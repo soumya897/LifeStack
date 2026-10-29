@@ -58,7 +58,7 @@ public class InterviewEventService {
         InterviewEvent saved = interviewEventRepository.save(event);
 
         // Auto-progress application status if in early stage
-        if (app.getStatus() == ApplicationStatus.SAVED || app.getStatus() == ApplicationStatus.APPLIED) {
+        if (app.getStatus() == ApplicationStatus.SAVED || app.getStatus() == ApplicationStatus.APPLIED || app.getStatus() == ApplicationStatus.SCREENING) {
             ApplicationStatus targetStatus = request.getEventType() == InterviewEventType.TAKE_HOME_ASSESSMENT
                     ? ApplicationStatus.ASSESSMENT
                     : ApplicationStatus.INTERVIEW;

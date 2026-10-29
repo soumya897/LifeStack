@@ -227,6 +227,7 @@ public class AnalyticsService {
         // Calculate stage funnel progression
         int appliedOrBeyond = (int) apps.stream().filter(a -> a.getStatus() != ApplicationStatus.SAVED).count();
         int assessmentOrBeyond = (int) apps.stream().filter(a ->
+                a.getStatus() == ApplicationStatus.SCREENING ||
                 a.getStatus() == ApplicationStatus.ASSESSMENT ||
                 a.getStatus() == ApplicationStatus.INTERVIEW ||
                 a.getStatus() == ApplicationStatus.OFFER ||
@@ -326,6 +327,8 @@ public class AnalyticsService {
             int total = sourceApps.size();
 
             int interviewCount = (int) sourceApps.stream().filter(a ->
+                    a.getStatus() == ApplicationStatus.SCREENING ||
+                    a.getStatus() == ApplicationStatus.ASSESSMENT ||
                     a.getStatus() == ApplicationStatus.INTERVIEW ||
                     a.getStatus() == ApplicationStatus.OFFER ||
                     a.getStatus() == ApplicationStatus.HIRED ||
