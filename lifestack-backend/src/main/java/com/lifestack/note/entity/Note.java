@@ -38,16 +38,16 @@ public class Note {
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "topic_notes",
-            joinColumns = @JoinColumn(name = "note_id"),
-            inverseJoinColumns = @JoinColumn(name = "topic_id")
+            joinColumns = { @JoinColumn(name = "note_id") },
+            inverseJoinColumns = { @JoinColumn(name = "topic_id") }
     )
     private Set<Topic> topics = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "problem_notes",
-            joinColumns = @JoinColumn(name = "note_id"),
-            inverseJoinColumns = @JoinColumn(name = "problem_id")
+            joinColumns = { @JoinColumn(name = "note_id") },
+            inverseJoinColumns = { @JoinColumn(name = "problem_id") }
     )
     private Set<Problem> problems = new HashSet<>();
 

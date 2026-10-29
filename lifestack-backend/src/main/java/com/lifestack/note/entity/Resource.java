@@ -37,8 +37,8 @@ public class Resource {
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "topic_resources",
-            joinColumns = @JoinColumn(name = "resource_id"),
-            inverseJoinColumns = @JoinColumn(name = "topic_id")
+            joinColumns = { @JoinColumn(name = "resource_id") },
+            inverseJoinColumns = { @JoinColumn(name = "topic_id") }
     )
     private Set<Topic> topics = new HashSet<>();
 
