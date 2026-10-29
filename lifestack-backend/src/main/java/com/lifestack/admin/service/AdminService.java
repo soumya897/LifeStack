@@ -35,6 +35,7 @@ import java.sql.Statement;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -55,14 +56,14 @@ public class AdminService {
                         UserActivityService userActivityService,
                         SessionRegistry sessionRegistry,
                         DataSource dataSource,
-                        Flyway flyway,
+                        Optional<Flyway> flyway,
                         PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.workspaceRepository = workspaceRepository;
         this.userActivityService = userActivityService;
         this.sessionRegistry = sessionRegistry;
         this.dataSource = dataSource;
-        this.flyway = flyway;
+        this.flyway = flyway.orElse(null);
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -135,26 +136,30 @@ public class AdminService {
         );
 
         // 2. Flyway Migration Health
-        String flywayStatus = "SUCCESS";
+        String flywayStatus = "DISABLED";
         String currentVersion = "N/A";
         String lastMigration = "None";
         String installedOn = "N/A";
         int totalMigrations = 0;
 
-        try {
-            MigrationInfo current = flyway.info().current();
-            MigrationInfo[] applied = flyway.info().applied();
-            totalMigrations = applied != null ? applied.length : 0;
+        if (flyway != null) {
+            try {
+                MigrationInfo current = flyway.info().current();
+                MigrationInfo[] applied = flyway.info().applied();
+                totalMigrations = applied != null ? applied.length : 0;
 
-            if (current != null) {
-                currentVersion = current.getVersion() != null ? current.getVersion().getVersion() : "1.0";
-                lastMigration = current.getScript() != null ? current.getScript() : current.getDescription();
-                installedOn = current.getInstalledOn() != null ? current.getInstalledOn().toString() : "N/A";
-                flywayStatus = current.getState() != null ? current.getState().name() : "SUCCESS";
+                if (current != null) {
+                    currentVersion = current.getVersion() != null ? current.getVersion().getVersion() : "1.0";
+                    lastMigration = current.getScript() != null ? current.getScript() : current.getDescription();
+                    installedOn = current.getInstalledOn() != null ? current.getInstalledOn().toString() : "N/A";
+                    flywayStatus = current.getState() != null ? current.getState().name() : "SUCCESS";
+                } else {
+                    flywayStatus = "SUCCESS";
+                }
+            } catch (Exception e) {
+                flywayStatus = "ERROR";
+                log.error("Flyway inspection error: {}", e.getMessage(), e);
             }
-        } catch (Exception e) {
-            flywayStatus = "ERROR";
-            log.warn("Flyway inspection error: {}", e.getMessage());
         }
 
         AdminSystemHealthResponse.FlywayHealth flywayHealth = new AdminSystemHealthResponse.FlywayHealth(
@@ -167,7 +172,9 @@ public class AdminService {
                 "[SECURITY] Administrator account provisioning restricted to verified administrators",
                 "[ISOLATION] Multi-tenant workspace data strictly partitioned by owner ID",
                 "[DATABASE] PostgreSQL connection pool active (HikariCP SSL/TLS)",
-                "[MIGRATIONS] Flyway automated schema verified at version " + currentVersion,
+                flyway != null
+                        ? "[MIGRATIONS] Flyway automated schema verified at version " + currentVersion
+                        : "[MIGRATIONS] Flyway automated schema migration disabled in current environment",
                 "[MONITOR] Cloud-native minimal logging profile enabled"
         );
 

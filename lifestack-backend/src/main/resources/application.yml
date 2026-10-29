@@ -1,11 +1,12 @@
 server:
   port: ${PORT:8080}
+  forward-headers-strategy: framework
   servlet:
     session:
       cookie:
         http-only: true
-        secure: ${SESSION_COOKIE_SECURE:false}
-        same-site: lax
+        secure: ${SESSION_COOKIE_SECURE:true}
+        same-site: ${SESSION_COOKIE_SAME_SITE:lax}
 
 spring:
   application:
@@ -18,10 +19,12 @@ spring:
     password: ${DB_PASSWORD:root}
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 10
-      minimum-idle: 2
+      maximum-pool-size: ${DB_POOL_MAX:10}
+      minimum-idle: ${DB_POOL_MIN_IDLE:2}
       idle-timeout: 300000
       connection-timeout: 20000
+      max-lifetime: 600000
+      keepalive-time: 30000
   jpa:
     show-sql: false
     hibernate:
@@ -60,3 +63,8 @@ logging:
 
 app:
   client-url: ${CLIENT_APP_URL:http://localhost:5173}
+  admin:
+    enabled: ${APP_ADMIN_ENABLED:false}
+    email: ${APP_ADMIN_EMAIL:}
+    password: ${APP_ADMIN_PASSWORD:}
+    name: ${APP_ADMIN_NAME:System Administrator}
