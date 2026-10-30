@@ -2,7 +2,7 @@
     "rewrites": [
         {
             "source": "/api/:path*",
-            "destination": "https://lifestack-1zei.onrender.com/api/:path*"
+            "destination": "https://lifestack-lzei.onrender.com/api/:path*"
         },
         {
             "source": "/(.*)",
