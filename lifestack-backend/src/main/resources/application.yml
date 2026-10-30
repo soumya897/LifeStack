@@ -64,7 +64,7 @@ logging:
 app:
   client-url: ${CLIENT_APP_URL}
   admin:
-    enabled: ${APP_ADMIN_ENABLED}
-    email: ${APP_ADMIN_EMAIL}
+    enabled: ${APP_ADMIN_ENABLED:false}
+    email: ${APP_ADMIN_EMAIL:}
     password: ${APP_ADMIN_PASSWORD:}
-    name: ${APP_ADMIN_NAME}
+    name: ${APP_ADMIN_NAME:System Administrator}
